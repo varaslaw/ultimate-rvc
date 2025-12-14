@@ -6,13 +6,14 @@ from pydantic import BaseModel
 
 from ultimate_rvc.typing_extra import (
     AudioExt,
+    AudioNormalizationMode,
     AudioSplitMethod,
     EmbedderModel,
     F0Method,
     IndexAlgorithm,
+    PrecisionType,
     PretrainedType,
     SampleRate,
-    TrainingF0Method,
     TrainingSampleRate,
     Vocoder,
 )
@@ -64,8 +65,8 @@ class GenerationConfig(BaseTabConfig):
 
     voice_model : DropdownConfig
         Configuration settings for a voice model dropdown component.
-    f0_methods : DropdownConfig
-        Configuration settings for a pitch extraction algorithms
+    f0_method : DropdownConfig
+        Configuration settings for a pitch extraction algorithm
         dropdown component.
     index_rate : SliderConfig
         Configuration settings for an index rate slider component.
@@ -79,6 +80,11 @@ class GenerationConfig(BaseTabConfig):
         Configuration settings for an autotune voice checkbox component.
     autotune_strength: SliderConfig
         Configuration settings for an autotune strength slider
+        component.
+    proposed_pitch: CheckboxConfig
+        Configuration settings for a proposed pitch checkbox component.
+    proposed_pitch_threshold: SliderConfig
+        Configuration settings for a proposed pitch threshold slider
         component.
     sid : NumberConfig
         Configuration settings for a speaker ID number component.
@@ -106,16 +112,12 @@ class GenerationConfig(BaseTabConfig):
         render=False,
         exclude_value=True,
     )
-    f0_methods: DropdownConfig = DropdownConfig(
-        label="Pitch extraction algorithm(s)",
-        info=(
-            "If more than one method is selected, then the median of the pitch values"
-            " extracted by each method is used. RMVPE is recommended for most cases and"
-            " is the default when no method is selected."
-        ),
-        value=[F0Method.RMVPE],
+    f0_method: DropdownConfig = DropdownConfig(
+        label="Pitch extraction algorithm",
+        info="RMVPE is recommended for most cases and is the default.",
+        value=F0Method.RMVPE,
         choices=list(F0Method),
-        multiselect=True,
+        multiselect=False,
     )
     index_rate: SliderConfig = SliderConfig(
         label="Index rate",
@@ -150,16 +152,6 @@ class GenerationConfig(BaseTabConfig):
         maximum=0.5,
     )
 
-    hop_length: SliderConfig = SliderConfig.hop_length(
-        label="Hop length",
-        info=(
-            "How often the CREPE-based pitch extraction method checks for pitch changes"
-            " measured in milliseconds. Lower values lead to longer conversion times"
-            " and a higher risk of voice cracks, but better pitch accuracy."
-        ),
-        visible=True,
-    )
-
     split_voice: CheckboxConfig = CheckboxConfig(
         label="Split input voice",
         info=(
@@ -170,7 +162,7 @@ class GenerationConfig(BaseTabConfig):
     )
     autotune_voice: CheckboxConfig = CheckboxConfig(
         label="Autotune converted voice",
-        info="Whether to apply autotune to the converted voice.<br><br>",
+        info="Whether to apply autotune to the converted voice.",
         value=False,
         exclude_value=True,
     )
@@ -185,6 +177,26 @@ class GenerationConfig(BaseTabConfig):
         maximum=1.0,
         visible=False,
     )
+    proposed_pitch: CheckboxConfig = CheckboxConfig(
+        label="Proposed pitch",
+        info=(
+            "Whether to adjust the pitch of the converted voice so that it matches the"
+            " range of the voice model used."
+        ),
+        value=False,
+        exclude_value=True,
+    )
+    proposed_pitch_threshold: SliderConfig = SliderConfig(
+        label="Proposed pitch threshold",
+        info=(
+            "Male voice models typically use 155.0 and female voice models typically"
+            " use 255.0."
+        ),
+        value=155.0,
+        minimum=50.0,
+        maximum=1200.0,
+        visible=False,
+    )
     sid: NumberConfig = NumberConfig(
         label="Speaker ID",
         info="Speaker ID for multi-speaker-models.",
@@ -194,7 +206,7 @@ class GenerationConfig(BaseTabConfig):
     output_sr: DropdownConfig = DropdownConfig(
         label="Output sample rate",
         info="The sample rate of the mixed output track.",
-        value=SampleRate.HZ_44100,
+        value=SampleRate.HZ_44K,
         choices=list(SampleRate),
     )
     output_format: DropdownConfig = DropdownConfig(
@@ -277,10 +289,7 @@ class SongGenerationConfig(GenerationConfig):
     )
     clean_voice: CheckboxConfig = CheckboxConfig(
         label="Clean converted voice",
-        info=(
-            "Whether to clean the converted voice using noise reduction"
-            " algorithms.<br><br>"
-        ),
+        info="Whether to clean the converted voice using noise reduction algorithms.",
         value=False,
         exclude_value=True,
     )
@@ -436,10 +445,7 @@ class SpeechGenerationConfig(GenerationConfig):
     )
     clean_voice: CheckboxConfig = CheckboxConfig(
         label="Clean converted voice",
-        info=(
-            "Whether to clean the converted voice using noise reduction"
-            " algorithms.<br><br>"
-        ),
+        info="Whether to clean the converted voice using noise reduction algorithms.",
         value=True,
         exclude_value=True,
     )
@@ -467,6 +473,9 @@ class TrainingConfig(BaseTabConfig):
         for audio preprocessing.
     sample_rate : DropdownConfig
         Configuration settings for a sample rate dropdown component.
+    normalization_mode: DropdownConfig
+        Configuration settings for a normalization mode dropdown
+        component.
     filter_audio : CheckboxConfig
         Configuration settings for a filter audio checkbox component.
     clean_audio : CheckboxConfig
@@ -488,8 +497,6 @@ class TrainingConfig(BaseTabConfig):
         feature extraction.
     f0_method : DropdownConfig
         Configuration settings for an F0 method dropdown component.
-    hop_length : SliderConfig
-        Configuration settings for a hop length slider component.
     include_mutes : SliderConfig
         Configuration settings for an include mutes slider component.
     extract_cores : SliderConfig
@@ -547,6 +554,8 @@ class TrainingConfig(BaseTabConfig):
     training_gpus : DropdownConfig
         Configuration settings for a GPU dropdown component for
         training.
+    precision: DropdownConfig
+        Configuration settings for a precision type dropdown component.
     preload_dataset : CheckboxConfig
         Configuration settings for a preload dataset checkbox component.
     reduce_memory_usage : CheckboxConfig
@@ -605,6 +614,15 @@ class TrainingConfig(BaseTabConfig):
         info="Target sample rate for the audio files in the provided dataset.",
         value=TrainingSampleRate.HZ_40K,
         choices=list(TrainingSampleRate),
+    )
+    normalization_mode: DropdownConfig = DropdownConfig(
+        label="Normalization mode",
+        info=(
+            "The normalization method to use for the audio files in the provided"
+            " dataset."
+        ),
+        value=AudioNormalizationMode.POST,
+        choices=list(AudioNormalizationMode),
     )
     filter_audio: CheckboxConfig = CheckboxConfig(
         label="Filter audio",
@@ -671,16 +689,11 @@ class TrainingConfig(BaseTabConfig):
     f0_method: DropdownConfig = DropdownConfig(
         label="F0 method",
         info="The method to use for extracting pitch features.",
-        value=TrainingF0Method.RMVPE,
-        choices=list(TrainingF0Method),
+        value=F0Method.RMVPE,
+        choices=list(F0Method),
         exclude_value=True,
     )
 
-    hop_length: SliderConfig = SliderConfig.hop_length(
-        label="Hop length",
-        info="The hop length to use for extracting pitch features.<br><br>",
-        visible=False,
-    )
     include_mutes: SliderConfig = SliderConfig(
         label="Include mutes",
         info=(
@@ -750,6 +763,7 @@ class TrainingConfig(BaseTabConfig):
         minimum=1,
         maximum=100,
         visible=False,
+        step=1,
     )
     vocoder: DropdownConfig = DropdownConfig(
         label="Vocoder",
@@ -845,6 +859,15 @@ class TrainingConfig(BaseTabConfig):
     )
     training_acceleration: DropdownConfig = DropdownConfig.hardware_acceleration()
     training_gpus: DropdownConfig = DropdownConfig.gpu()
+    precision: DropdownConfig = DropdownConfig(
+        label="Precision",
+        info=(
+            "The precision type to use when training the voice model. FP16 and BF16 can"
+            " reduce VRAM usage and speed up training on supported hardware."
+        ),
+        value=PrecisionType.FP32,
+        choices=list(PrecisionType),
+    )
     preload_dataset: CheckboxConfig = CheckboxConfig(
         label="Preload dataset",
         info=(

@@ -22,6 +22,8 @@ from ultimate_rvc.cli.common import (
     complete_embedder_model,
     complete_f0_method,
     complete_index_algorithm,
+    complete_normalization_mode,
+    complete_precision_type,
     complete_pretrained_type,
     complete_training_sample_rate,
     complete_vocoder,
@@ -34,12 +36,14 @@ from ultimate_rvc.core.train.prepare import populate_dataset as _populate_datase
 from ultimate_rvc.core.train.prepare import preprocess_dataset as _preprocess_dataset
 from ultimate_rvc.core.train.train import run_training as _run_training
 from ultimate_rvc.typing_extra import (
+    AudioNormalizationMode,
     AudioSplitMethod,
     DeviceType,
     EmbedderModel,
+    F0Method,
     IndexAlgorithm,
+    PrecisionType,
     PretrainedType,
-    TrainingF0Method,
     TrainingSampleRate,
     Vocoder,
 )
@@ -116,6 +120,46 @@ def preprocess_dataset(
             help="The target sample rate for the audio files in the provided dataset",
         ),
     ] = TrainingSampleRate.HZ_40K,
+    normalization_mode: Annotated[
+        AudioNormalizationMode,
+        typer.Option(
+            case_sensitive=False,
+            autocompletion=complete_normalization_mode,
+            help=(
+                "The audio normalization method to use for the audio files in the"
+                " provided dataset."
+            ),
+        ),
+    ] = AudioNormalizationMode.POST,
+    filter_audio: Annotated[
+        bool,
+        typer.Option(
+            help=(
+                "Whether to remove low-frequency sounds from the audio files in the"
+                " provided dataset by applying a high-pass butterworth filter."
+            ),
+        ),
+    ] = True,
+    clean_audio: Annotated[
+        bool,
+        typer.Option(
+            help=(
+                "Whether to clean the audio files in the provided dataset using noise"
+                " reduction algorithms."
+            ),
+        ),
+    ] = False,
+    clean_strength: Annotated[
+        float,
+        typer.Option(
+            min=0.0,
+            max=1.0,
+            help=(
+                "The intensity of the cleaning to apply to the audio files in the"
+                " provided dataset."
+            ),
+        ),
+    ] = 0.7,
     split_method: Annotated[
         AudioSplitMethod,
         typer.Option(
@@ -149,35 +193,6 @@ def preprocess_dataset(
             ),
         ),
     ] = 0.3,
-    filter_audio: Annotated[
-        bool,
-        typer.Option(
-            help=(
-                "Whether to remove low-frequency sounds from the audio files in the"
-                " provided dataset by applying a high-pass butterworth filter."
-            ),
-        ),
-    ] = True,
-    clean_audio: Annotated[
-        bool,
-        typer.Option(
-            help=(
-                "Whether to clean the audio files in the provided dataset using noise"
-                " reduction algorithms."
-            ),
-        ),
-    ] = False,
-    clean_strength: Annotated[
-        float,
-        typer.Option(
-            min=0.0,
-            max=1.0,
-            help=(
-                "The intensity of the cleaning to apply to the audio files in the"
-                " provided dataset."
-            ),
-        ),
-    ] = 0.7,
     cpu_cores: Annotated[
         int,
         typer.Option(
@@ -197,12 +212,13 @@ def preprocess_dataset(
         model_name=model_name,
         dataset=dataset,
         sample_rate=sample_rate,
-        split_method=split_method,
-        chunk_len=chunk_len,
-        overlap_len=overlap_len,
+        normalization_mode=normalization_mode,
         filter_audio=filter_audio,
         clean_audio=clean_audio,
         clean_strength=clean_strength,
+        split_method=split_method,
+        chunk_len=chunk_len,
+        overlap_len=overlap_len,
         cpu_cores=cpu_cores,
     )
 
@@ -239,24 +255,13 @@ def extract_features(
         typer.Argument(help="The name of the voice model to be trained."),
     ],
     f0_method: Annotated[
-        TrainingF0Method,
+        F0Method,
         typer.Option(
             case_sensitive=False,
             autocompletion=complete_f0_method,
             help="The method to use for extracting pitch features.",
         ),
-    ] = TrainingF0Method.RMVPE,
-    hop_length: Annotated[
-        int,
-        typer.Option(
-            min=1,
-            max=512,
-            help=(
-                "The hop length to use for extracting pitch features. Only used"
-                " with the CREPE pitch extraction method."
-            ),
-        ),
-    ] = 128,
+    ] = F0Method.RMVPE,
     embedder_model: Annotated[
         EmbedderModel,
         typer.Option(
@@ -331,7 +336,6 @@ def extract_features(
     _extract_features(
         model_name=model_name,
         f0_method=f0_method,
-        hop_length=hop_length,
         embedder_model=embedder_model,
         custom_embedder_model=custom_embedder_model,
         include_mutes=include_mutes,
@@ -535,6 +539,19 @@ def run_training(
             ),
         ),
     ] = None,
+    precision: Annotated[
+        PrecisionType,
+        typer.Option(
+            rich_help_panel=PanelName.DEVICE_AND_MEMORY_OPTIONS,
+            autocompletion=complete_precision_type,
+            case_sensitive=False,
+            help=(
+                "The numerical precision to use during training. Lower precision can"
+                " reduce VRAM usage and speed up training, but may lead to"
+                " instability."
+            ),
+        ),
+    ] = PrecisionType.FP32,
     preload_dataset: Annotated[
         bool,
         typer.Option(
@@ -583,6 +600,7 @@ def run_training(
         upload_name=upload_name,
         hardware_acceleration=hardware_acceleration,
         gpu_ids=gpu_id_set,
+        precision=precision,
         preload_dataset=preload_dataset,
         reduce_memory_usage=reduce_memory_usage,
     )

@@ -10,6 +10,7 @@ import os
 import re
 import signal
 
+from ultimate_rvc.common import PRETRAINED_MODELS_DIR
 from ultimate_rvc.core.common import (
     TRAINING_MODELS_DIR,
     VOICE_MODELS_DIR,
@@ -20,11 +21,11 @@ from ultimate_rvc.core.common import (
 )
 from ultimate_rvc.core.exceptions import (
     Entity,
-    IncompatiblePretrainedModelError,
-    IncompatibleVocoderError,
     ModelAsssociatedEntityNotFoundError,
     ModelExistsError,
     NotProvidedError,
+    PretrainedModelIncompatibleError,
+    PretrainedModelNotAvailableError,
     Step,
 )
 from ultimate_rvc.core.train.common import validate_devices
@@ -32,7 +33,9 @@ from ultimate_rvc.core.train.typing_extra import ModelInfo, TrainingInfo
 from ultimate_rvc.typing_extra import (
     DeviceType,
     IndexAlgorithm,
+    PrecisionType,
     PretrainedType,
+    TrainingSampleRate,
     Vocoder,
 )
 
@@ -42,7 +45,7 @@ logger = logging.getLogger(__name__)
 def _get_pretrained_model(
     pretrained_type: PretrainedType,
     vocoder: Vocoder,
-    sample_rate: int,
+    sample_rate: TrainingSampleRate,
     custom_pretrained: str | None = None,
 ) -> tuple[str, str]:
     """
@@ -77,28 +80,27 @@ def _get_pretrained_model(
         dataset file list or if a custom pretrained
         generator/discriminator model does not have an associated
         generator or discriminator.
-    IncompatiblePretrainedModelError
+    PretrainedModelIncompatibleError
         if a custom pretrained model is not compatible with the sample
         rate of the preprocessed dataset associated with the voice model
         to be trained.
-    IncompatibleVocoderError
-        If the default pretrained model is not compatible with the
-        vocoder to be used for audio synthesis when training the voice
-        model.
+    PretrainedModelNotAvailableError
+        If no default pretrained model is available for the provided
+        vocoder and sample rate.
 
     """
     match pretrained_type:
         case PretrainedType.NONE:
             pg, pd = "", ""
         case PretrainedType.DEFAULT:
-            from ultimate_rvc.rvc.lib.tools.pretrained_selector import (  # noqa: PLC0415
-                pretrained_selector,
-            )
-
-            if not vocoder == Vocoder.HIFI_GAN:
-                raise IncompatibleVocoderError(vocoder)
-
-            pg, pd = pretrained_selector(vocoder, sample_rate=sample_rate)
+            base_path = PRETRAINED_MODELS_DIR / vocoder.lower()
+            pg = base_path / f"f0G{str(sample_rate)[:2]}k.pth"
+            pd = base_path / f"f0D{str(sample_rate)[:2]}k.pth"
+            if not pg.is_file() or not pd.is_file():
+                raise PretrainedModelNotAvailableError(
+                    name=vocoder, sample_rate=sample_rate, download=False
+                )
+            pg, pd = str(pg), str(pd)
         case PretrainedType.CUSTOM:
             custom_pretrained_path = validate_model(
                 custom_pretrained,
@@ -108,9 +110,9 @@ def _get_pretrained_model(
             custom_pretrained = custom_pretrained_path.name
 
             # TODO need to make this cleaner
-            custom_pretrained_sample_rate = int(custom_pretrained[-3:-1]) * 1000
+            custom_pretrained_sample_rate = int(custom_pretrained.split(" ")[-1])
             if not custom_pretrained_sample_rate == sample_rate:
-                raise IncompatiblePretrainedModelError(custom_pretrained, sample_rate)
+                raise PretrainedModelIncompatibleError(custom_pretrained, sample_rate)
 
             pg = next(
                 (
@@ -160,6 +162,7 @@ def run_training(
     upload_name: str | None = None,
     hardware_acceleration: DeviceType = DeviceType.AUTOMATIC,
     gpu_ids: set[int] | None = None,
+    precision: PrecisionType = PrecisionType.FP32,
     preload_dataset: bool = False,
     reduce_memory_usage: bool = False,
 ) -> list[str] | None:
@@ -234,6 +237,10 @@ def run_training(
     gpu_ids : set[int], optional
         Set of ids of the GPUs to use for training the voice model when
         `GPU` is selected for hardware acceleration.
+    precision : PrecisionType, default=PrecisionType.FP32
+        The precision type to use when training the voice model. FP16
+        and BF16 can reduce VRAM usage and speed up training on
+        supported hardware.
     preload_dataset : bool, default=False
         Whether to preload all training data into GPU memory. This can
         improve training speed but requires a lot of VRAM.
@@ -314,6 +321,7 @@ def run_training(
         reduce_memory_usage,
         device_type,
         device_ids,
+        precision,
     )
 
     model_file = model_path / f"{model_name}_best.pth"

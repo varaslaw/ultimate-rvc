@@ -30,7 +30,6 @@ from ultimate_rvc.typing_extra import (
     DeviceType,
     EmbedderModel,
     PretrainedType,
-    TrainingF0Method,
 )
 from ultimate_rvc.web.common import (
     exception_harness,
@@ -121,8 +120,9 @@ def _render_step_1(total_config: TotalConfig) -> None:
             tab_config.preprocess_model.instance.render()
         with gr.Accordion("Options", open=False):
             with gr.Row():
-                with gr.Column():
-                    tab_config.sample_rate.instantiate()
+                tab_config.sample_rate.instantiate()
+                tab_config.normalization_mode.instantiate()
+            with gr.Row():
                 with gr.Column():
                     tab_config.filter_audio.instantiate()
                 with gr.Column():
@@ -179,12 +179,13 @@ def _render_step_1(total_config: TotalConfig) -> None:
                     tab_config.preprocess_model.instance,
                     tab_config.dataset.instance,
                     tab_config.sample_rate.instance,
-                    tab_config.split_method.instance,
-                    tab_config.chunk_len.instance,
-                    tab_config.overlap_len.instance,
+                    tab_config.normalization_mode.instance,
                     tab_config.filter_audio.instance,
                     tab_config.clean_audio.instance,
                     tab_config.clean_strength.instance,
+                    tab_config.split_method.instance,
+                    tab_config.chunk_len.instance,
+                    tab_config.overlap_len.instance,
                     tab_config.preprocess_cores.instance,
                 ],
                 outputs=preprocess_msg,
@@ -248,16 +249,6 @@ def _render_step_2(total_config: TotalConfig) -> None:
             with gr.Row():
                 with gr.Column():
                     tab_config.f0_method.instantiate()
-                    tab_config.hop_length.instantiate()
-                tab_config.f0_method.instance.change(
-                    partial(
-                        toggle_visibility,
-                        targets={TrainingF0Method.CREPE, TrainingF0Method.CREPE_TINY},
-                    ),
-                    inputs=tab_config.f0_method.instance,
-                    outputs=tab_config.hop_length.instance,
-                    show_progress="hidden",
-                )
                 with gr.Column():
                     tab_config.embedder_model.instantiate()
                     tab_config.custom_embedder_model.instance.render()
@@ -301,7 +292,6 @@ def _render_step_2(total_config: TotalConfig) -> None:
                 inputs=[
                     tab_config.extract_model.instance,
                     tab_config.f0_method.instance,
-                    tab_config.hop_length.instance,
                     tab_config.embedder_model.instance,
                     tab_config.custom_embedder_model.instance,
                     tab_config.include_mutes.instance,
@@ -325,7 +315,6 @@ def _render_step_2(total_config: TotalConfig) -> None:
             reset_extract_btn.click(
                 lambda: [
                     tab_config.f0_method.value,
-                    tab_config.hop_length.value,
                     tab_config.embedder_model.value,
                     tab_config.include_mutes.value,
                     CPU_CORES,
@@ -334,7 +323,6 @@ def _render_step_2(total_config: TotalConfig) -> None:
                 ],
                 outputs=[
                     tab_config.f0_method.instance,
-                    tab_config.hop_length.instance,
                     tab_config.embedder_model.instance,
                     tab_config.include_mutes.instance,
                     tab_config.extraction_cores.instance,
@@ -392,6 +380,7 @@ def _render_step_3(total_config: TotalConfig) -> None:
                 tab_config.upload_name.instance,
                 tab_config.training_acceleration.instance,
                 tab_config.training_gpus.instance,
+                tab_config.precision.instance,
                 tab_config.preload_dataset.instance,
                 tab_config.reduce_memory_usage.instance,
             ],
@@ -444,6 +433,7 @@ def _render_step_3(total_config: TotalConfig) -> None:
                 tab_config.upload_model.value,
                 tab_config.training_acceleration.value,
                 GPU_CHOICES[0][1] if GPU_CHOICES else None,
+                tab_config.precision.value,
                 tab_config.preload_dataset.value,
                 tab_config.reduce_memory_usage.value,
             ],
@@ -462,6 +452,7 @@ def _render_step_3(total_config: TotalConfig) -> None:
                 tab_config.upload_model.instance,
                 tab_config.training_acceleration.instance,
                 tab_config.training_gpus.instance,
+                tab_config.precision.instance,
                 tab_config.preload_dataset.instance,
                 tab_config.reduce_memory_usage.instance,
             ],
@@ -526,18 +517,21 @@ def _render_step_3_data_storage_settings(tab_config: MultiStepTrainingConfig) ->
 
 def _render_step_3_device_settings(tab_config: MultiStepTrainingConfig) -> None:
     with gr.Accordion("Device and memory", open=False):
-        with gr.Column():
-            tab_config.training_acceleration.instantiate()
-            tab_config.training_gpus.instantiate(
-                choices=GPU_CHOICES,
-                value=GPU_CHOICES[0][1] if GPU_CHOICES else None,
+        with gr.Row():
+            with gr.Column():
+                tab_config.training_acceleration.instantiate()
+                tab_config.training_gpus.instantiate(
+                    choices=GPU_CHOICES,
+                    value=GPU_CHOICES[0][1] if GPU_CHOICES else None,
+                )
+            with gr.Column():
+                tab_config.precision.instantiate()
+            tab_config.training_acceleration.instance.change(
+                partial(toggle_visibility, targets={DeviceType.GPU}),
+                inputs=tab_config.training_acceleration.instance,
+                outputs=tab_config.training_gpus.instance,
+                show_progress="hidden",
             )
-        tab_config.training_acceleration.instance.change(
-            partial(toggle_visibility, targets={DeviceType.GPU}),
-            inputs=tab_config.training_acceleration.instance,
-            outputs=tab_config.training_gpus.instance,
-            show_progress="hidden",
-        )
         with gr.Row():
             tab_config.preload_dataset.instantiate()
             tab_config.reduce_memory_usage.instantiate()

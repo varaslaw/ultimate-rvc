@@ -43,6 +43,8 @@ class EmbedderModel(StrEnum):
     """Enumeration of audio embedding models."""
 
     CONTENTVEC = "contentvec"
+    SPIN = "spin"
+    SPIN_V2 = "spin-v2"
     CHINESE_HUBERT_BASE = "chinese-hubert-base"
     JAPANESE_HUBERT_BASE = "japanese-hubert-base"
     KOREAN_HUBERT_BASE = "korean-hubert-base"
@@ -61,11 +63,11 @@ class RVCContentType(StrEnum):
 class SampleRate(IntEnum):
     """Enumeration of supported audio sample rates."""
 
-    HZ_16000 = 16000
-    HZ_44100 = 44100
-    HZ_48000 = 48000
-    HZ_96000 = 96000
-    HZ_192000 = 192000
+    HZ_16K = 16000
+    HZ_44K = 44100
+    HZ_48K = 48000
+    HZ_96K = 96000
+    HZ_192K = 192000
 
 
 class AudioExt(StrEnum):
@@ -87,29 +89,20 @@ class DeviceType(StrEnum):
     GPU = "GPU"
 
 
-class TrainingSampleRate(StrEnum):
+class PrecisionType(StrEnum):
+    """Enumeration of precision types for training voice models."""
+
+    FP32 = "fp32"
+    FP16 = "fp16"
+    BF16 = "bf16"
+
+
+class TrainingSampleRate(IntEnum):
     """Enumeration of sample rates for training voice models."""
 
-    HZ_32K = "32000"
-    HZ_40K = "40000"
-    HZ_48K = "48000"
-
-
-class PretrainedSampleRate(StrEnum):
-    """Enumeration of valid sample rates for pretrained models."""
-
-    HZ_32K = "32k"
-    HZ_40K = "40k"
-    HZ_44K = "44k"
-    HZ_48K = "48k"
-
-
-class TrainingF0Method(StrEnum):
-    """Enumeration of pitch extraction methods for training."""
-
-    RMVPE = "rmvpe"
-    CREPE = "crepe"
-    CREPE_TINY = "crepe-tiny"
+    HZ_32K = 32000
+    HZ_40K = 40000
+    HZ_48K = 48000
 
 
 class AudioSplitMethod(StrEnum):
@@ -121,6 +114,17 @@ class AudioSplitMethod(StrEnum):
     SKIP = "Skip"
     SIMPLE = "Simple"
     AUTOMATIC = "Automatic"
+
+
+class AudioNormalizationMode(StrEnum):
+    """
+    Enumeration of audio normalization methods during
+    dataset preprocessing.
+    """
+
+    NONE = "none"
+    PRE = "pre"
+    POST = "post"
 
 
 class Vocoder(StrEnum):

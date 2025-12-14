@@ -19,11 +19,12 @@ from ultimate_rvc.cli.common import (
     complete_audio_ext,
     complete_embedder_model,
     complete_f0_method,
+    complete_sample_rate,
     format_duration,
 )
 from ultimate_rvc.cli.typing_extra import PanelName
 from ultimate_rvc.core.generate.song_cover import run_pipeline as _run_pipeline
-from ultimate_rvc.typing_extra import AudioExt, EmbedderModel, F0Method
+from ultimate_rvc.typing_extra import AudioExt, EmbedderModel, F0Method, SampleRate
 
 app = typer.Typer(
     name="song-cover",
@@ -70,19 +71,14 @@ def run_pipeline(
         ),
     ] = 0,
     f0_method: Annotated[
-        list[F0Method] | None,
+        F0Method,
         typer.Option(
             case_sensitive=False,
             autocompletion=complete_f0_method,
             rich_help_panel=PanelName.VOICE_SYNTHESIS_OPTIONS,
-            help=(
-                "The method to use for pitch extraction during vocal conversion. This"
-                " option can be provided multiple times to use multiple pitch"
-                " extraction methods in combination. If not provided, will default to"
-                " the rmvpe method, which is generally recommended."
-            ),
+            help="The method to use for pitch extraction during vocal conversion.",
         ),
-    ] = None,
+    ] = F0Method.RMVPE,
     index_rate: Annotated[
         float,
         typer.Option(
@@ -123,20 +119,6 @@ def run_pipeline(
             ),
         ),
     ] = 0.33,
-    hop_length: Annotated[
-        int,
-        typer.Option(
-            min=1,
-            max=512,
-            rich_help_panel=PanelName.VOICE_SYNTHESIS_OPTIONS,
-            help=(
-                "Controls how often the CREPE-based pitch extraction method checks for"
-                " pitch changes during vocal conversion measured in milliseconds. Lower"
-                " values lead to longer conversion times and a higher risk of voice"
-                " cracks, but better pitch accuracy."
-            ),
-        ),
-    ] = 128,
     split_vocals: Annotated[
         bool,
         typer.Option(
@@ -167,6 +149,28 @@ def run_pipeline(
             ),
         ),
     ] = 1.0,
+    proposed_pitch: Annotated[
+        bool,
+        typer.Option(
+            rich_help_panel=PanelName.VOICE_ENRICHMENT_OPTIONS,
+            help=(
+                "Whether to adjust the pitch of the converted vocals so that it"
+                " matches the range of the voice model used."
+            ),
+        ),
+    ] = False,
+    proposed_pitch_threshold: Annotated[
+        float,
+        typer.Option(
+            min=50.0,
+            max=1200.0,
+            rich_help_panel=PanelName.VOICE_ENRICHMENT_OPTIONS,
+            help=(
+                "Threshold for proposed pitch correction. Male voice models typically"
+                " use 155.0 and female voice models typically use 255.0."
+            ),
+        ),
+    ] = 155.0,
     clean_vocals: Annotated[
         bool,
         typer.Option(
@@ -291,12 +295,13 @@ def run_pipeline(
         ),
     ] = 0,
     output_sr: Annotated[
-        int,
+        SampleRate,
         typer.Option(
+            autocompletion=complete_sample_rate,
             rich_help_panel=PanelName.AUDIO_MIXING_OPTIONS,
             help="The sample rate of the song cover.",
         ),
-    ] = 44100,
+    ] = SampleRate.HZ_44K,
     output_format: Annotated[
         AudioExt,
         typer.Option(
@@ -338,14 +343,15 @@ def run_pipeline(
         model_name=model_name,
         n_octaves=n_octaves,
         n_semitones=n_semitones,
-        f0_methods=f0_method,
+        f0_method=f0_method,
         index_rate=index_rate,
         rms_mix_rate=rms_mix_rate,
         protect_rate=protect_rate,
-        hop_length=hop_length,
         split_vocals=split_vocals,
         autotune_vocals=autotune_vocals,
         autotune_strength=autotune_strength,
+        proposed_pitch=proposed_pitch,
+        proposed_pitch_threshold=proposed_pitch_threshold,
         clean_vocals=clean_vocals,
         clean_strength=clean_strength,
         embedder_model=embedder_model,
