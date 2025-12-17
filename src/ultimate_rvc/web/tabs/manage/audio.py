@@ -46,7 +46,7 @@ def render(total_config: TotalConfig) -> None:
     tab_config.dummy_checkbox.instantiate()
     event_state = ManageAudioEventState()
 
-    with gr.Tab("Delete"):
+    with gr.Tab("Удалить"):
         _render_intermediate_accordion(tab_config, event_state)
         _render_speech_accordion(tab_config, event_state)
         _render_output_accordion(tab_config, event_state)
@@ -123,14 +123,14 @@ def _render_intermediate_accordion(
     tab_config: AudioManagementConfig,
     event_state: ManageAudioEventState,
 ) -> None:
-    with gr.Accordion("Intermediate audio", open=False), gr.Row():
+    with gr.Accordion("Промежуточное аудио", open=False), gr.Row():
         with gr.Column():
             tab_config.intermediate.instance.render()
-            intermediate_audio_btn = gr.Button("Delete selected", variant="secondary")
-            all_intermediate_audio_btn = gr.Button("Delete all", variant="primary")
+            intermediate_audio_btn = gr.Button("Удалить выбранные", variant="secondary")
+            all_intermediate_audio_btn = gr.Button("Удалить всё", variant="primary")
         with gr.Column():
             intermediate_audio_msg = gr.Textbox(
-                label="Output message",
+                label="Сообщение",
                 interactive=False,
             )
         event_state.delete_intermediate_click.instance = setup_delete_event(
@@ -138,16 +138,16 @@ def _render_intermediate_accordion(
             delete_intermediate_audio,
             [tab_config.dummy_checkbox.instance, tab_config.intermediate.instance],
             intermediate_audio_msg,
-            "Are you sure you want to delete the selected song directories?",
-            "[-] Successfully deleted the selected song directories!",
+            "Удалить выбранные директории песен?",
+            "[-] Выбранные директории удалены!",
         )
         event_state.delete_all_intermediate_click.instance = setup_delete_event(
             all_intermediate_audio_btn,
             delete_all_intermediate_audio,
             [tab_config.dummy_checkbox.instance],
             intermediate_audio_msg,
-            "Are you sure you want to delete all intermediate audio files?",
-            "[-] Successfully deleted all intermediate audio files!",
+            "Удалить все промежуточные аудиофайлы?",
+            "[-] Все промежуточные аудиофайлы удалены!",
         )
 
 
@@ -155,21 +155,21 @@ def _render_speech_accordion(
     tab_config: AudioManagementConfig,
     event_state: ManageAudioEventState,
 ) -> None:
-    with gr.Accordion("Speech audio", open=False), gr.Row():
+    with gr.Accordion("Аудио речи", open=False), gr.Row():
         with gr.Column():
             tab_config.speech.instance.render()
-            speech_audio_btn = gr.Button("Delete selected", variant="secondary")
-            all_speech_audio_btn = gr.Button("Delete all", variant="primary")
+            speech_audio_btn = gr.Button("Удалить выбранные", variant="secondary")
+            all_speech_audio_btn = gr.Button("Удалить всё", variant="primary")
         with gr.Column():
-            speech_audio_msg = gr.Textbox(label="Output message", interactive=False)
+            speech_audio_msg = gr.Textbox(label="Сообщение", interactive=False)
 
         event_state.delete_speech_click.instance = setup_delete_event(
             speech_audio_btn,
             delete_speech_audio,
             [tab_config.dummy_checkbox.instance, tab_config.speech.instance],
             speech_audio_msg,
-            "Are you sure you want to delete the selected speech audio files?",
-            "[-] Successfully deleted the selected speech audio files!",
+            "Удалить выбранные аудио с речью?",
+            "[-] Выбранные аудио с речью удалены!",
         )
 
         event_state.delete_all_speech_click.instance = setup_delete_event(
@@ -177,8 +177,8 @@ def _render_speech_accordion(
             delete_all_speech_audio,
             [tab_config.dummy_checkbox.instance],
             speech_audio_msg,
-            "Are you sure you want to delete all speech audio files?",
-            "[-] Successfully deleted all speech audio files!",
+            "Удалить все аудио с речью?",
+            "[-] Все аудио с речью удалены!",
         )
 
 
@@ -186,28 +186,28 @@ def _render_output_accordion(
     tab_config: AudioManagementConfig,
     event_state: ManageAudioEventState,
 ) -> None:
-    with gr.Accordion("Output audio", open=False), gr.Row():
+    with gr.Accordion("Готовые аудио", open=False), gr.Row():
         with gr.Column():
             tab_config.output.instance.render()
-            output_audio_btn = gr.Button("Delete selected", variant="secondary")
-            all_output_audio_btn = gr.Button("Delete all", variant="primary")
+            output_audio_btn = gr.Button("Удалить выбранные", variant="secondary")
+            all_output_audio_btn = gr.Button("Удалить всё", variant="primary")
         with gr.Column():
-            output_audio_msg = gr.Textbox(label="Output message", interactive=False)
+            output_audio_msg = gr.Textbox(label="Сообщение", interactive=False)
         event_state.delete_output_click.instance = setup_delete_event(
             output_audio_btn,
             delete_output_audio,
             [tab_config.dummy_checkbox.instance, tab_config.output.instance],
             output_audio_msg,
-            "Are you sure you want to delete the selected output audio files?",
-            "[-] Successfully deleted the selected output audio files!",
+            "Удалить выбранные готовые аудиофайлы?",
+            "[-] Выбранные готовые файлы удалены!",
         )
         event_state.delete_all_output_click.instance = setup_delete_event(
             all_output_audio_btn,
             delete_all_output_audio,
             [tab_config.dummy_checkbox.instance],
             output_audio_msg,
-            "Are you sure you want to delete all output audio files?",
-            "[-] Successfully deleted all output audio files!",
+            "Удалить все готовые аудиофайлы?",
+            "[-] Все готовые аудиофайлы удалены!",
         )
 
 
@@ -215,29 +215,29 @@ def _render_dataset_accordion(
     tab_config: AudioManagementConfig,
     event_state: ManageAudioEventState,
 ) -> None:
-    with gr.Accordion("Dataset audio", open=False), gr.Row():
+    with gr.Accordion("Аудио датасетов", open=False), gr.Row():
         with gr.Column():
             tab_config.dataset.instance.render()
-            dataset_audio_btn = gr.Button("Delete selected", variant="secondary")
-            all_dataset_audio_btn = gr.Button("Delete all", variant="primary")
+            dataset_audio_btn = gr.Button("Удалить выбранные", variant="secondary")
+            all_dataset_audio_btn = gr.Button("Удалить всё", variant="primary")
         with gr.Column():
-            dataset_audio_msg = gr.Textbox(label="Output message", interactive=False)
+            dataset_audio_msg = gr.Textbox(label="Сообщение", interactive=False)
 
         event_state.delete_dataset_click.instance = setup_delete_event(
             dataset_audio_btn,
             delete_dataset_audio,
             [tab_config.dummy_checkbox.instance, tab_config.dataset.instance],
             dataset_audio_msg,
-            "Are you sure you want to delete the selected dataset audio files?",
-            "[-] Successfully deleted the selected dataset audio files!",
+            "Удалить выбранные аудио из датасетов?",
+            "[-] Выбранные файлы из датасетов удалены!",
         )
         event_state.delete_all_dataset_click.instance = setup_delete_event(
             all_dataset_audio_btn,
             delete_all_dataset_audio,
             [tab_config.dummy_checkbox.instance],
             dataset_audio_msg,
-            "Are you sure you want to delete all dataset audio files?",
-            "[-] Successfully deleted all dataset audio files!",
+            "Удалить все аудио из датасетов?",
+            "[-] Все аудио из датасетов удалены!",
         )
 
 
@@ -245,15 +245,15 @@ def _render_all_accordion(
     tab_config: AudioManagementConfig,
     event_state: ManageAudioEventState,
 ) -> None:
-    with gr.Accordion("All audio", open=True), gr.Row(equal_height=True):
-        all_audio_btn = gr.Button("Delete", variant="primary")
-        all_audio_msg = gr.Textbox(label="Output message", interactive=False)
+    with gr.Accordion("Всё аудио", open=True), gr.Row(equal_height=True):
+        all_audio_btn = gr.Button("Удалить", variant="primary")
+        all_audio_msg = gr.Textbox(label="Сообщение", interactive=False)
 
     event_state.delete_all_click.instance = setup_delete_event(
         all_audio_btn,
         delete_all_audio,
         [tab_config.dummy_checkbox.instance],
         all_audio_msg,
-        "Are you sure you want to delete all audio files?",
-        "[-] Successfully deleted all audio files!",
+        "Удалить все аудиофайлы?",
+        "[-] Все аудиофайлы удалены!",
     )

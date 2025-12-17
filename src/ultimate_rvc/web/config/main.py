@@ -71,34 +71,34 @@ class SongIntermediateAudioConfig(BaseModel):
 
     """
 
-    song: AudioConfig = AudioConfig.intermediate(label="Song")
-    vocals: AudioConfig = AudioConfig.intermediate(label="Vocals")
+    song: AudioConfig = AudioConfig.intermediate(label="Трек")
+    vocals: AudioConfig = AudioConfig.intermediate(label="Вокал")
     instrumentals: AudioConfig = AudioConfig.intermediate(
-        label="Instrumentals",
+        label="Инструментал",
     )
     main_vocals: AudioConfig = AudioConfig.intermediate(
-        label="Main vocals",
+        label="Основной вокал",
     )
     backup_vocals: AudioConfig = AudioConfig.intermediate(
-        label="Backup vocals",
+        label="Бэк-вокал",
     )
     main_vocals_dereverbed: AudioConfig = AudioConfig.intermediate(
-        label="De-reverbed main vocals",
+        label="Основной вокал без реверба",
     )
     main_vocals_reverb: AudioConfig = AudioConfig.intermediate(
-        label="Main vocals with reverb",
+        label="Основной вокал с ревербом",
     )
     converted_vocals: AudioConfig = AudioConfig.intermediate(
-        label="Converted vocals",
+        label="Сконвертированный вокал",
     )
     postprocessed_vocals: AudioConfig = AudioConfig.intermediate(
-        label="Postprocessed vocals",
+        label="Постобработанный вокал",
     )
     instrumentals_shifted: AudioConfig = AudioConfig.intermediate(
-        label="Pitch-shifted instrumentals",
+        label="Инструментал со сдвигом тона",
     )
     backup_vocals_shifted: AudioConfig = AudioConfig.intermediate(
-        label="Pitch-shifted backup vocals",
+        label="Бэки со сдвигом тона",
     )
 
     @property
@@ -146,23 +146,23 @@ class OneClickSongGenerationConfig(SongGenerationConfig):
     """
 
     n_octaves: SliderConfig = SliderConfig.octave_shift(
-        label="Vocal pitch shift",
+        label="Сдвиг высоты вокала",
         info=(
-            "The number of octaves to shift the pitch of the converted vocals by. Use 1"
-            " for male-to-female and -1 for vice-versa."
+            "На сколько октав сдвигать высоту сконвертированного вокала. 1 — мужской"
+            " → женский, -1 — женский → мужской."
         ),
     )
 
     n_semitones: SliderConfig = SliderConfig.semitone_shift(
-        label="Overall pitch shift",
+        label="Общий сдвиг высоты",
         info=(
-            "The number of semi-tones to shift the pitch of the converted vocals,"
-            " instrumentals and backup vocals by."
+            "На сколько полутонов сдвигать высоту конвертированного вокала,"
+            " инструментала и бэков."
         ),
     )
     show_intermediate_audio: CheckboxConfig = CheckboxConfig(
-        label="Show intermediate audio",
-        info="Show intermediate audio tracks produced during song cover generation.",
+        label="Показывать промежуточные аудио",
+        info="Отображать промежуточные дорожки, создаваемые в процессе генерации кавера.",
         value=False,
         exclude_value=True,
     )
@@ -204,14 +204,14 @@ class SongInputAudioConfig(BaseModel):
 
     """
 
-    audio: AudioConfig = AudioConfig.input(label="Audio")
-    vocals: AudioConfig = AudioConfig.input(label="Vocals")
-    converted_vocals: AudioConfig = AudioConfig.input(label="Vocals")
-    instrumentals: AudioConfig = AudioConfig.input(label="Instrumentals")
-    backup_vocals: AudioConfig = AudioConfig.input(label="Backup vocals")
-    main_vocals: AudioConfig = AudioConfig.input(label="Main vocals")
-    shifted_instrumentals: AudioConfig = AudioConfig.input(label="Instrumentals")
-    shifted_backup_vocals: AudioConfig = AudioConfig.input(label="Backup vocals")
+    audio: AudioConfig = AudioConfig.input(label="Аудио")
+    vocals: AudioConfig = AudioConfig.input(label="Вокал")
+    converted_vocals: AudioConfig = AudioConfig.input(label="Вокал")
+    instrumentals: AudioConfig = AudioConfig.input(label="Инструментал")
+    backup_vocals: AudioConfig = AudioConfig.input(label="Бэк-вокал")
+    main_vocals: AudioConfig = AudioConfig.input(label="Основной вокал")
+    shifted_instrumentals: AudioConfig = AudioConfig.input(label="Инструментал")
+    shifted_backup_vocals: AudioConfig = AudioConfig.input(label="Бэк-вокал")
 
     @property
     def all(self) -> list[AudioConfig]:
@@ -316,41 +316,41 @@ class MultiStepSongGenerationConfig(SongGenerationConfig):
     """
 
     separation_model: DropdownConfig = DropdownConfig(
-        label="Separation model",
-        info="The model to use for audio separation.",
+        label="Модель разделения",
+        info="Модель, используемая для разделения аудио на стемы.",
         value=SeparationModel.UVR_MDX_NET_VOC_FT,
         choices=list(SeparationModel),
     )
     segment_size: RadioConfig = RadioConfig(
-        label="Segment size",
+        label="Размер сегмента",
         info=(
-            "The size of the segments into which the audio is split. Using a larger"
-            " size consumes more resources, but may give better results."
+            "Длина фрагментов, на которые делится аудио. Больше — расходует больше"
+            " ресурсов, но может дать лучшее качество."
         ),
         value=SegmentSize.SEG_512,
         choices=list(SegmentSize),
     )
     n_octaves: SliderConfig = SliderConfig.octave_shift(
-        label="Pitch shift (octaves)",
+        label="Сдвиг тона (октавы)",
         info=(
-            "The number of octaves to pitch-shift the converted voice by. Use 1 for"
-            " male-to-female and -1 for vice-versa."
+            "На сколько октав смещать высоту конвертированного голоса. 1 —"
+            " мужской → женский, -1 — наоборот."
         ),
     )
     n_semitones: SliderConfig = SliderConfig.semitone_shift(
-        label="Pitch shift (semi-tones)",
+        label="Сдвиг тона (полутона)",
         info=(
-            "The number of semi-tones to pitch-shift the converted vocals by. Altering"
-            " this slightly reduces sound quality."
+            "На сколько полутонов сдвигать высоту конвертированного вокала."
+            " Сильное изменение может слегка ухудшить качество."
         ),
     )
     n_semitones_instrumentals: SliderConfig = SliderConfig.semitone_shift(
-        label="Instrumental pitch shift",
-        info="The number of semi-tones to pitch-shift the instrumentals by.",
+        label="Сдвиг тона инструментала",
+        info="На сколько полутонов смещать высоту инструментала.",
     )
     n_semitones_backup_vocals: SliderConfig = SliderConfig.semitone_shift(
-        label="Backup vocal pitch shift",
-        info="The number of semi-tones to pitch-shift the backup vocals by.",
+        label="Сдвиг тона бэков",
+        info="На сколько полутонов смещать высоту бэк-вокала.",
     )
     input_audio: SongInputAudioConfig = SongInputAudioConfig()
     song_dirs: SongDirsConfig = SongDirsConfig()
@@ -373,8 +373,8 @@ class SpeechIntermediateAudioConfig(BaseModel):
 
     """
 
-    speech: AudioConfig = AudioConfig.intermediate(label="Speech")
-    converted_speech: AudioConfig = AudioConfig.intermediate(label="Converted speech")
+    speech: AudioConfig = AudioConfig.intermediate(label="Речь")
+    converted_speech: AudioConfig = AudioConfig.intermediate(label="Сконвертированная речь")
 
     @property
     def all(self) -> list[gr.Audio]:
@@ -415,8 +415,8 @@ class OneClickSpeechGenerationConfig(SpeechGenerationConfig):
     intermediate_audio: SpeechIntermediateAudioConfig = SpeechIntermediateAudioConfig()
 
     show_intermediate_audio: CheckboxConfig = CheckboxConfig(
-        label="Show intermediate audio",
-        info="Show intermediate audio tracks produced during speech generation.",
+        label="Показывать промежуточные аудио",
+        info="Отображать промежуточные дорожки, созданные при генерации речи.",
         value=False,
         exclude_value=True,
     )
@@ -440,8 +440,8 @@ class SpeechInputAudioConfig(BaseModel):
 
     """
 
-    speech: AudioConfig = AudioConfig.input("Speech")
-    converted_speech: AudioConfig = AudioConfig.input("Converted speech")
+    speech: AudioConfig = AudioConfig.input("Речь")
+    converted_speech: AudioConfig = AudioConfig.input("Сконвертированная речь")
 
     @property
     def all(self) -> list[AudioConfig]:
@@ -508,20 +508,20 @@ class ModelManagementConfig(BaseModel):
     """
 
     voices: DropdownConfig = DropdownConfig.multi_delete(
-        label="Voice models",
-        info="Select one or more voice models to delete.",
+        label="Голосовые модели",
+        info="Выберите одну или несколько голосовых моделей для удаления.",
     )
     embedders: DropdownConfig = DropdownConfig.multi_delete(
-        label="Custom embedder models",
-        info="Select one or more embedder models to delete.",
+        label="Пользовательские эмбеддеры",
+        info="Выберите пользовательские модели эмбеддеров для удаления.",
     )
     pretraineds: DropdownConfig = DropdownConfig.multi_delete(
-        label="Custom pretrained models",
-        info="Select one or more pretrained models to delete.",
+        label="Пользовательские предобученные модели",
+        info="Выберите предобученные модели для удаления.",
     )
     traineds: DropdownConfig = DropdownConfig.multi_delete(
-        label="Training models",
-        info="Select one or more training models to delete.",
+        label="Обученные модели",
+        info="Выберите обученные модели для удаления.",
     )
 
     dummy_checkbox: CheckboxConfig = CheckboxConfig(
@@ -555,23 +555,23 @@ class AudioManagementConfig(BaseModel):
     """
 
     intermediate: DropdownConfig = DropdownConfig.multi_delete(
-        label="Song directories",
+        label="Папки песен",
         info=(
-            "Select one or more song directories containing intermediate audio files to"
-            " delete."
+            "Выберите одну или несколько папок с промежуточными файлами, которые"
+            " нужно удалить."
         ),
     )
     speech: DropdownConfig = DropdownConfig.multi_delete(
-        label="Speech audio files",
-        info="Select one or more speech audio files to delete.",
+        label="Аудио речи",
+        info="Выберите один или несколько файлов речи для удаления.",
     )
     output: DropdownConfig = DropdownConfig.multi_delete(
-        label="Output audio files",
-        info="Select one or more output audio files to delete.",
+        label="Готовые аудио",
+        info="Выберите выходные аудиофайлы для удаления.",
     )
     dataset: DropdownConfig = DropdownConfig.multi_delete(
-        label="Dataset audio files",
-        info="Select one or more datasets containing audio files to delete.",
+        label="Аудио датасетов",
+        info="Выберите наборы данных с аудиофайлами, которые нужно удалить.",
     )
 
     dummy_checkbox: CheckboxConfig = CheckboxConfig(
@@ -593,15 +593,15 @@ class SettingsManagementConfig(BaseModel):
     """
 
     load_config_name: DropdownConfig = DropdownConfig(
-        label="Configuration name",
-        info="The name of a configuration to load UI settings from",
+        label="Имя конфигурации",
+        info="Конфигурация, из которой загрузить настройки интерфейса",
         value=None,
         render=False,
         exclude_value=True,
     )
     delete_config_names: DropdownConfig = DropdownConfig.multi_delete(
-        label="Configuration names",
-        info="Select the name of one or more configurations to delete",
+        label="Имена конфигураций",
+        info="Выберите одну или несколько конфигураций для удаления",
     )
     dummy_checkbox: CheckboxConfig = CheckboxConfig(
         value=False,

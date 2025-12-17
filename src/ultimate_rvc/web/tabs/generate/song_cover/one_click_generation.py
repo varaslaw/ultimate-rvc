@@ -48,10 +48,10 @@ def render(total_config: TotalConfig, cookiefile: str | None = None) -> None:
         audio from Youtube.
 
     """
-    with gr.Tab("One-click"):
+    with gr.Tab("В один клик"):
         tab_config = total_config.song.one_click
         _render_input(tab_config)
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             _render_main_options(tab_config)
             _render_conversion_options(tab_config)
             _render_mixing_options(tab_config)
@@ -59,10 +59,10 @@ def render(total_config: TotalConfig, cookiefile: str | None = None) -> None:
             _render_intermediate_audio(tab_config)
 
         with gr.Row(equal_height=True):
-            reset_btn = gr.Button(value="Reset options", scale=2)
-            generate_btn = gr.Button("Generate", scale=2, variant="primary")
+            reset_btn = gr.Button(value="Сбросить настройки", scale=2)
+            generate_btn = gr.Button("Сгенерировать", scale=2, variant="primary")
         song_cover = gr.Audio(
-            label="Song cover",
+            label="Кавер",
             scale=3,
             waveform_options=gr.WaveformOptions(show_recording_waveform=False),
         )
@@ -71,7 +71,7 @@ def render(total_config: TotalConfig, cookiefile: str | None = None) -> None:
             partial(
                 exception_harness(
                     run_pipeline,
-                    info_msg="Song cover generated successfully!",
+                    info_msg="Кавер успешно создан!",
                 ),
                 cookiefile=cookiefile,
                 progress_bar=PROGRESS_BAR,
@@ -189,7 +189,7 @@ def _render_input(tab_config: OneClickSongGenerationConfig) -> None:
         with gr.Column():
             tab_config.source.instantiate()
             local_file = gr.Audio(
-                label="Source",
+                label="Источник",
                 type="filepath",
                 visible=False,
                 waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -230,16 +230,16 @@ def _render_main_options(tab_config: OneClickSongGenerationConfig) -> None:
 
 
 def _render_conversion_options(tab_config: OneClickSongGenerationConfig) -> None:
-    with gr.Accordion("Vocal conversion", open=False):
+    with gr.Accordion("Конверсия вокала", open=False):
         gr.Markdown("")
-        with gr.Accordion("Voice synthesis", open=False):
+        with gr.Accordion("Синтез голоса", open=False):
             with gr.Row():
                 tab_config.f0_method.instantiate()
                 tab_config.index_rate.instantiate()
             with gr.Row():
                 tab_config.rms_mix_rate.instantiate()
                 tab_config.protect_rate.instantiate()
-        with gr.Accordion("Vocal enrichment", open=False):
+        with gr.Accordion("Обогащение вокала", open=False):
             with gr.Row(), gr.Column():
                 tab_config.split_voice.instantiate()
             with gr.Row():
@@ -270,7 +270,7 @@ def _render_conversion_options(tab_config: OneClickSongGenerationConfig) -> None
                 outputs=tab_config.clean_strength.instance,
                 show_progress="hidden",
             )
-        with gr.Accordion("Speaker embedding", open=False):
+        with gr.Accordion("Спикер-эмбеддинг", open=False):
             with gr.Row():
                 with gr.Column():
                     tab_config.embedder_model.instantiate()
@@ -285,9 +285,9 @@ def _render_conversion_options(tab_config: OneClickSongGenerationConfig) -> None
 
 
 def _render_mixing_options(tab_config: OneClickSongGenerationConfig) -> None:
-    with gr.Accordion("Audio mixing", open=False):
+    with gr.Accordion("Сведение", open=False):
         gr.Markdown("")
-        with gr.Accordion("Reverb control on converted vocals", open=False):
+        with gr.Accordion("Реверб на сконвертированном вокале", open=False):
             with gr.Row():
                 tab_config.room_size.instantiate()
             with gr.Row():
@@ -295,14 +295,14 @@ def _render_mixing_options(tab_config: OneClickSongGenerationConfig) -> None:
                 tab_config.dry_level.instantiate()
                 tab_config.damping.instantiate()
 
-        with gr.Accordion("Volume controls (dB)", open=False), gr.Row():
+        with gr.Accordion("Громкость (дБ)", open=False), gr.Row():
             tab_config.main_gain.instantiate()
             tab_config.inst_gain.instantiate()
             tab_config.backup_gain.instantiate()
 
 
 def _render_output_options(tab_config: OneClickSongGenerationConfig) -> None:
-    with gr.Accordion("Audio output", open=False):
+    with gr.Accordion("Вывод аудио", open=False):
         with gr.Row():
             tab_config.output_name.instantiate(
                 value=partial(
@@ -324,18 +324,18 @@ def _render_output_options(tab_config: OneClickSongGenerationConfig) -> None:
 
 def _render_intermediate_audio(tab_config: OneClickSongGenerationConfig) -> None:
     with gr.Accordion(
-        "Intermediate audio tracks",
+        "Промежуточные дорожки",
         open=False,
         visible=False,
     ) as intermediate_audio_accordion:
         with gr.Accordion(
-            "Step 0: song retrieval",
+            "Шаг 0: загрузка трека",
             open=False,
         ) as song_retrieval_accordion:
             tab_config.intermediate_audio.song.instantiate()
         with (
             gr.Accordion(
-                "Step 1a: vocals/instrumentals separation",
+                "Шаг 1a: разделение вокала и инструментала",
                 open=False,
             ) as vocals_separation_accordion,
             gr.Row(),
@@ -344,7 +344,7 @@ def _render_intermediate_audio(tab_config: OneClickSongGenerationConfig) -> None
             tab_config.intermediate_audio.instrumentals.instantiate()
         with (
             gr.Accordion(
-                "Step 1b: main vocals/ backup vocals separation",
+                "Шаг 1b: разделение основного и бэк-вокала",
                 open=False,
             ) as main_vocals_separation_accordion,
             gr.Row(),
@@ -353,7 +353,7 @@ def _render_intermediate_audio(tab_config: OneClickSongGenerationConfig) -> None
             tab_config.intermediate_audio.backup_vocals.instantiate()
         with (
             gr.Accordion(
-                "Step 1c: main vocals cleanup",
+                "Шаг 1c: чистка основного вокала",
                 open=False,
             ) as vocal_cleanup_accordion,
             gr.Row(),
@@ -361,18 +361,18 @@ def _render_intermediate_audio(tab_config: OneClickSongGenerationConfig) -> None
             tab_config.intermediate_audio.main_vocals_dereverbed.instantiate()
             tab_config.intermediate_audio.main_vocals_reverb.instantiate()
         with gr.Accordion(
-            "Step 2: conversion of main vocals",
+            "Шаг 2: конверсия основного вокала",
             open=False,
         ) as vocal_conversion_accordion:
             tab_config.intermediate_audio.converted_vocals.instantiate()
         with gr.Accordion(
-            "Step 3: post-processing of converted vocals",
+            "Шаг 3: постобработка конвертированного вокала",
             open=False,
         ) as vocals_postprocessing_accordion:
             tab_config.intermediate_audio.postprocessed_vocals.instantiate()
         with (
             gr.Accordion(
-                "Step 4: pitch shift of background tracks",
+                "Шаг 4: сдвиг тона фоновых дорожек",
                 open=False,
             ) as pitch_shift_accordion,
             gr.Row(),
