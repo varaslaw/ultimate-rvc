@@ -69,7 +69,7 @@ def render(total_config: TotalConfig) -> None:
 
     _render_download_tab(event_state)
     _render_upload_tab(event_state)
-    with gr.Tab("Train", elem_id="train-tab"):
+    with gr.Tab("Обучение", elem_id="train-tab"):
         _render_train_multi_step_tab(total_config)
     _render_delete_tab(tab_config, event_state)
 
@@ -150,36 +150,36 @@ def render(total_config: TotalConfig) -> None:
 
 
 def _render_download_tab(event_state: ManageModelEventState) -> None:
-    with gr.Tab("Download"):
-        with gr.Accordion("Voice models"):
-            with gr.Accordion("View public models table", open=False):
-                with gr.Accordion("HOW TO USE", open=False):
+    with gr.Tab("Скачать"):
+        with gr.Accordion("Голосовые модели"):
+            with gr.Accordion("Публичные модели", open=False):
+                with gr.Accordion("КАК ИСПОЛЬЗОВАТЬ", open=False):
                     gr.Markdown("")
                     gr.Markdown(
-                        "- Filter voice models by selecting one or more tags and/or"
-                        " providing a search query.",
+                        "- Фильтруйте голосовые модели, выбирая теги и/или вводя"
+                        " поисковый запрос.",
                     )
                     gr.Markdown(
-                        "- Select a row in the table to autofill the name and URL for"
-                        " the given voice model in the form fields below.",
+                        "- Выберите строку таблицы, чтобы автоматически подставить"
+                        " имя и URL модели в форму ниже.",
                     )
                 with gr.Row():
-                    search_query = gr.Textbox(label="Search query")
+                    search_query = gr.Textbox(label="Поисковый запрос")
                     tags = gr.CheckboxGroup(
-                        label="Tags",
+                        label="Теги",
                         value=[],
                         choices=get_public_model_tags(),
                     )
                 with gr.Row():
                     public_models_table = gr.Dataframe(
-                        label="Public models table",
+                        label="Таблица публичных моделей",
                         value=load_public_models_table([]),
                         headers=[
-                            "Name",
-                            "Description",
-                            "Tags",
-                            "Credit",
-                            "Added",
+                            "Имя",
+                            "Описание",
+                            "Теги",
+                            "Авторы",
+                            "Добавлено",
                             "URL",
                         ],
                         interactive=False,
@@ -198,25 +198,24 @@ def _render_download_tab(event_state: ManageModelEventState) -> None:
 
             with gr.Row():
                 voice_model_url = gr.Textbox(
-                    label="Model URL",
+                    label="URL модели",
                     info=(
-                        "Should point to a zip file containing a .pth model file and"
-                        " optionally also an .index file."
+                        "Ссылка на zip-архив с файлом .pth и, при наличии, .index."
                     ),
                 )
                 voice_model_name = gr.Textbox(
-                    label="Model name",
-                    info="Enter a unique name for the voice model.",
+                    label="Имя модели",
+                    info="Введите уникальное имя для голосовой модели.",
                 )
 
             with gr.Row(equal_height=True):
                 download_voice_btn = gr.Button(
-                    "Download 🌐",
+                    "Скачать 🌐",
                     variant="primary",
                     scale=19,
                 )
                 download_voice_msg = gr.Textbox(
-                    label="Output message",
+                    label="Сообщение",
                     interactive=False,
                     scale=20,
                 )
@@ -233,21 +232,21 @@ def _render_download_tab(event_state: ManageModelEventState) -> None:
                 inputs=[voice_model_url, voice_model_name],
                 outputs=download_voice_msg,
             ).success(
-                partial(render_msg, "[+] Succesfully downloaded voice model!"),
+                partial(render_msg, "[+] Голосовая модель успешно скачана!"),
                 outputs=download_voice_msg,
                 show_progress="hidden",
             )
-        with gr.Accordion("Pretrained models", open=False):
+        with gr.Accordion("Предобученные модели", open=False):
             with gr.Row():
                 pretrained_model = gr.Dropdown(
-                    label="Pretrained model",
-                    info="Select the pretrained model you want to download.",
+                    label="Предобученная модель",
+                    info="Выберите предобученную модель для загрузки.",
                     value=PRETRAINED_MODELS_TABLE.default_name,
                     choices=PRETRAINED_MODELS_TABLE.names,
                 )
                 pretrained_sample_rate = gr.Dropdown(
-                    label="Sample rate",
-                    info="Select the sample rate for the pretrained model.",
+                    label="Частота дискретизации",
+                    info="Выберите частоту дискретизации для модели.",
                     value=PRETRAINED_MODELS_TABLE.default_sample_rate,
                     choices=PRETRAINED_MODELS_TABLE.default_sample_rates,
                 )
@@ -260,12 +259,12 @@ def _render_download_tab(event_state: ManageModelEventState) -> None:
                 )
             with gr.Row(equal_height=True):
                 download_pretrained_btn = gr.Button(
-                    "Download 🌐",
+                    "Скачать 🌐",
                     variant="primary",
                     scale=19,
                 )
                 download_pretrained_msg = gr.Textbox(
-                    label="Output message",
+                    label="Сообщение",
                     interactive=False,
                     scale=20,
                 )
@@ -275,7 +274,7 @@ def _render_download_tab(event_state: ManageModelEventState) -> None:
                     inputs=[pretrained_model, pretrained_sample_rate],
                     outputs=download_pretrained_msg,
                 ).success(
-                    partial(render_msg, "[+] Succesfully downloaded pretrained model!"),
+                    partial(render_msg, "[+] Предобученная модель успешно скачана!"),
                     outputs=download_pretrained_msg,
                     show_progress="hidden",
                 )
@@ -283,35 +282,35 @@ def _render_download_tab(event_state: ManageModelEventState) -> None:
 
 
 def _render_upload_tab(event_state: ManageModelEventState) -> None:
-    with gr.Tab("Upload"):
-        with gr.Accordion("Voice models", open=True):
-            with gr.Accordion("HOW TO USE", open=False):
+    with gr.Tab("Загрузить"):
+        with gr.Accordion("Голосовые модели", open=True):
+            with gr.Accordion("КАК ИСПОЛЬЗОВАТЬ", open=False):
                 gr.Markdown("")
                 gr.Markdown(
-                    "1. Find the .pth file for a locally trained RVC model (e.g. in"
-                    " your local weights folder) and optionally also a corresponding"
-                    " .index file (e.g. in your logs/[name] folder)",
+                    "1. Найдите файл .pth локально обученной RVC-модели (например,"
+                    " в папке weights) и при необходимости соответствующий .index"
+                    " (например, в logs/[name])",
                 )
                 gr.Markdown(
-                    "2. Upload the files directly or save them to a folder, then"
-                    " compress that folder and upload the resulting .zip file",
+                    "2. Загрузите файлы напрямую или сложите их в папку, затем"
+                    " заархивируйте и загрузите zip",
                 )
-                gr.Markdown("3. Enter a unique name for the uploaded model")
-                gr.Markdown("4. Click 'Upload'")
+                gr.Markdown("3. Введите уникальное имя для модели")
+                gr.Markdown("4. Нажмите ‘Upload’")
 
             with gr.Row():
                 voice_model_files = gr.File(
-                    label="Files",
+                    label="Файлы",
                     file_count="multiple",
                     file_types=[".zip", ".pth", ".index"],
                 )
 
-                local_voice_model_name = gr.Textbox(label="Model name")
+                local_voice_model_name = gr.Textbox(label="Имя модели")
 
             with gr.Row(equal_height=True):
-                upload_voice_btn = gr.Button("Upload", variant="primary", scale=19)
+                upload_voice_btn = gr.Button("Загрузить", variant="primary", scale=19)
                 upload_voice_msg = gr.Textbox(
-                    label="Output message",
+                    label="Сообщение",
                     interactive=False,
                     scale=20,
                 )
@@ -320,37 +319,37 @@ def _render_upload_tab(event_state: ManageModelEventState) -> None:
                     inputs=[voice_model_files, local_voice_model_name],
                     outputs=upload_voice_msg,
                 ).success(
-                    partial(render_msg, "[+] Successfully uploaded voice model!"),
+                    partial(render_msg, "[+] Голосовая модель успешно загружена!"),
                     outputs=upload_voice_msg,
                     show_progress="hidden",
                 )
-        with gr.Accordion("Custom embedder models", open=False):
-            with gr.Accordion("HOW TO USE", open=False):
+        with gr.Accordion("Пользовательские эмбеддеры", open=False):
+            with gr.Accordion("КАК ИСПОЛЬЗОВАТЬ", open=False):
                 gr.Markdown("")
                 gr.Markdown(
-                    "1. Find the config.json file and pytorch_model.bin file for a"
-                    " custom embedder model stored locally.",
+                    "1. Найдите файлы config.json и pytorch_model.bin для вашего"
+                    " эмбеддера.",
                 )
                 gr.Markdown(
-                    "2. Upload the files directly or save them to a folder, then"
-                    " compress that folder and upload the resulting .zip file",
+                    "2. Загрузите их напрямую или заархивируйте папку и загрузите"
+                    " zip",
                 )
-                gr.Markdown("3. Enter a unique name for the uploaded embedder model")
-                gr.Markdown("4. Click 'Upload'")
+                gr.Markdown("3. Укажите уникальное имя для модели эмбеддера")
+                gr.Markdown("4. Нажмите ‘Upload’")
 
             with gr.Row():
                 embedder_files = gr.File(
-                    label="Files",
+                    label="Файлы",
                     file_count="multiple",
                     file_types=[".zip", ".json", ".bin"],
                 )
 
-                local_embedder_name = gr.Textbox(label="Model name")
+                local_embedder_name = gr.Textbox(label="Имя модели")
 
             with gr.Row(equal_height=True):
-                upload_embedder_btn = gr.Button("Upload", variant="primary", scale=19)
+                upload_embedder_btn = gr.Button("Загрузить", variant="primary", scale=19)
                 upload_embedder_msg = gr.Textbox(
-                    label="Output message",
+                    label="Сообщение",
                     interactive=False,
                     scale=20,
                 )
@@ -361,7 +360,7 @@ def _render_upload_tab(event_state: ManageModelEventState) -> None:
                 ).success(
                     partial(
                         render_msg,
-                        "[+] Successfully uploaded custom embedder model!",
+                        "[+] Пользовательский эмбеддер успешно загружен!",
                     ),
                     outputs=upload_embedder_msg,
                     show_progress="hidden",
@@ -372,7 +371,7 @@ def _render_delete_tab(
     tab_config: ModelManagementConfig,
     event_state: ManageModelEventState,
 ) -> None:
-    with gr.Tab("Delete"):
+    with gr.Tab("Удалить"):
         _render_voices_accordion(tab_config, event_state)
         _render_embedders_accordion(tab_config, event_state)
         _render_pretraineds_accordion(tab_config, event_state)
@@ -384,21 +383,21 @@ def _render_voices_accordion(
     tab_config: ModelManagementConfig,
     event_state: ManageModelEventState,
 ) -> None:
-    with gr.Accordion("Voice models", open=False), gr.Row():
+    with gr.Accordion("Голосовые модели", open=False), gr.Row():
         with gr.Column():
             tab_config.voices.instance.render()
-            delete_voice_btn = gr.Button("Delete selected", variant="secondary")
-            delete_all_voice_btn = gr.Button("Delete all", variant="primary")
+            delete_voice_btn = gr.Button("Удалить выбранные", variant="secondary")
+            delete_all_voice_btn = gr.Button("Удалить все", variant="primary")
         with gr.Column():
-            delete_voice_msg = gr.Textbox(label="Output message", interactive=False)
+            delete_voice_msg = gr.Textbox(label="Сообщение", interactive=False)
 
     event_state.delete_voice_click.instance = setup_delete_event(
         delete_voice_btn,
         delete_voice_models,
         [tab_config.dummy_checkbox.instance, tab_config.voices.instance],
         delete_voice_msg,
-        "Are you sure you want to delete the selected voice models?",
-        "[-] Successfully deleted selected voice models!",
+        "Удалить выбранные голосовые модели?",
+        "[-] Выбранные голосовые модели удалены!",
     )
 
     event_state.delete_all_voices_click.instance = setup_delete_event(
@@ -406,8 +405,8 @@ def _render_voices_accordion(
         delete_all_voice_models,
         [tab_config.dummy_checkbox.instance],
         delete_voice_msg,
-        "Are you sure you want to delete all voice models?",
-        "[-] Successfully deleted all voice models!",
+        "Удалить все голосовые модели?",
+        "[-] Все голосовые модели удалены!",
     )
 
 
@@ -415,21 +414,21 @@ def _render_embedders_accordion(
     tab_config: ModelManagementConfig,
     event_state: ManageModelEventState,
 ) -> None:
-    with gr.Accordion("Custom embedder models", open=False), gr.Row():
+    with gr.Accordion("Пользовательские эмбеддеры", open=False), gr.Row():
         with gr.Column():
             tab_config.embedders.instance.render()
-            delete_embedder_btn = gr.Button("Delete selected", variant="secondary")
-            delete_all_embedder_btn = gr.Button("Delete all", variant="primary")
+            delete_embedder_btn = gr.Button("Удалить выбранные", variant="secondary")
+            delete_all_embedder_btn = gr.Button("Удалить все", variant="primary")
         with gr.Column():
-            delete_embedder_msg = gr.Textbox(label="Output message", interactive=False)
+            delete_embedder_msg = gr.Textbox(label="Сообщение", interactive=False)
 
     event_state.delete_embedder_click.instance = setup_delete_event(
         delete_embedder_btn,
         delete_custom_embedder_models,
         [tab_config.dummy_checkbox.instance, tab_config.embedders.instance],
         delete_embedder_msg,
-        "Are you sure you want to delete the selected custom embedder models?",
-        "[-] Successfully deleted selected custom embedder models!",
+        "Удалить выбранные пользовательские эмбеддеры?",
+        "[-] Выбранные эмбеддеры удалены!",
     )
 
     event_state.delete_all_embedders_click.instance = setup_delete_event(
@@ -437,8 +436,8 @@ def _render_embedders_accordion(
         delete_all_custom_embedder_models,
         [tab_config.dummy_checkbox.instance],
         delete_embedder_msg,
-        "Are you sure you want to delete all custom embedder models?",
-        "[-] Successfully deleted all custom embedder models!",
+        "Удалить все пользовательские эмбеддеры?",
+        "[-] Все пользовательские эмбеддеры удалены!",
     )
 
 
@@ -446,14 +445,14 @@ def _render_pretraineds_accordion(
     tab_config: ModelManagementConfig,
     event_state: ManageModelEventState,
 ) -> None:
-    with gr.Accordion("Custom pretrained models", open=False), gr.Row():
+    with gr.Accordion("Пользовательские предобученные модели", open=False), gr.Row():
         with gr.Column():
             tab_config.pretraineds.instance.render()
-            delete_pretrained_btn = gr.Button("Delete selected", variant="secondary")
-            delete_all_pretrained_btn = gr.Button("Delete all", variant="primary")
+            delete_pretrained_btn = gr.Button("Удалить выбранные", variant="secondary")
+            delete_all_pretrained_btn = gr.Button("Удалить все", variant="primary")
         with gr.Column():
             delete_pretrained_msg = gr.Textbox(
-                label="Output message",
+                label="Сообщение",
                 interactive=False,
             )
 
@@ -462,16 +461,16 @@ def _render_pretraineds_accordion(
         delete_custom_pretrained_models,
         [tab_config.dummy_checkbox.instance, tab_config.pretraineds.instance],
         delete_pretrained_msg,
-        "Are you sure you want to delete the selected custom pretrained models?",
-        "[-] Successfully deleted selected custom pretrained models!",
+        "Удалить выбранные пользовательские предобученные модели?",
+        "[-] Выбранные предобученные модели удалены!",
     )
     event_state.delete_all_pretraineds_click.instance = setup_delete_event(
         delete_all_pretrained_btn,
         delete_all_custom_pretrained_models,
         [tab_config.dummy_checkbox.instance],
         delete_pretrained_msg,
-        "Are you sure you want to delete all custom pretrained models?",
-        "[-] Successfully deleted all custom pretrained models!",
+        "Удалить все пользовательские предобученные модели?",
+        "[-] Все пользовательские предобученные модели удалены!",
     )
 
 
@@ -479,21 +478,21 @@ def _render_traineds_accordion(
     tab_config: ModelManagementConfig,
     event_state: ManageModelEventState,
 ) -> None:
-    with gr.Accordion("Training models", open=False), gr.Row():
+    with gr.Accordion("Обученные модели", open=False), gr.Row():
         with gr.Column():
             tab_config.traineds.instance.render()
-            delete_train_btn = gr.Button("Delete selected", variant="secondary")
-            delete_all_train_btn = gr.Button("Delete all", variant="primary")
+            delete_train_btn = gr.Button("Удалить выбранные", variant="secondary")
+            delete_all_train_btn = gr.Button("Удалить все", variant="primary")
         with gr.Column():
-            delete_train_msg = gr.Textbox(label="Output message", interactive=False)
+            delete_train_msg = gr.Textbox(label="Сообщение", interactive=False)
 
     event_state.delete_trained_click.instance = setup_delete_event(
         delete_train_btn,
         delete_training_models,
         [tab_config.dummy_checkbox.instance, tab_config.traineds.instance],
         delete_train_msg,
-        "Are you sure you want to delete the selected training models?",
-        "[-] Successfully deleted selected training models!",
+        "Удалить выбранные обученные модели?",
+        "[-] Выбранные обученные модели удалены!",
     )
 
     event_state.delete_all_trained_click.instance = setup_delete_event(
@@ -501,8 +500,8 @@ def _render_traineds_accordion(
         delete_all_training_models,
         [tab_config.dummy_checkbox.instance],
         delete_train_msg,
-        "Are you sure you want to delete all training models?",
-        "[-] Successfully deleted all training models!",
+        "Удалить все обученные модели?",
+        "[-] Все обученные модели удалены!",
     )
 
 
@@ -510,17 +509,17 @@ def _render_all_accordion(
     tab_config: ModelManagementConfig,
     event_state: ManageModelEventState,
 ) -> None:
-    with gr.Accordion("All models"), gr.Row(equal_height=True):
-        delete_all_btn = gr.Button("Delete", variant="primary")
-        delete_all_msg = gr.Textbox(label="Output message", interactive=False)
+    with gr.Accordion("Все модели"), gr.Row(equal_height=True):
+        delete_all_btn = gr.Button("Удалить", variant="primary")
+        delete_all_msg = gr.Textbox(label="Сообщение", interactive=False)
 
     event_state.delete_all_click.instance = setup_delete_event(
         delete_all_btn,
         delete_all_models,
         [tab_config.dummy_checkbox.instance],
         delete_all_msg,
-        "Are you sure you want to delete all models?",
-        "[-] Successfully deleted all models!",
+        "Удалить все модели?",
+        "[-] Все модели удалены!",
     )
 
 

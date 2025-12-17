@@ -58,7 +58,7 @@ def render(total_config: TotalConfig, cookiefile: str | None = None) -> None:
     tab_config = total_config.song.multi_step
     for input_track in tab_config.input_audio.all:
         input_track.instantiate()
-    with gr.Tab("Multi-step"):
+    with gr.Tab("По шагам"):
         _render_step_0(total_config, cookiefile=cookiefile)
         _render_step_1(tab_config)
         _render_step_2(tab_config)
@@ -71,7 +71,7 @@ def _render_step_0(total_config: TotalConfig, cookiefile: str | None) -> None:
     tab_config = total_config.song.multi_step
 
     current_song_dir = gr.State(None)
-    with gr.Accordion("Step 0: song retrieval", open=True):
+    with gr.Accordion("Шаг 0: загрузка трека", open=True):
         gr.Markdown("")
         with gr.Row():
             with gr.Column():
@@ -79,7 +79,7 @@ def _render_step_0(total_config: TotalConfig, cookiefile: str | None) -> None:
             with gr.Column():
                 tab_config.source.instantiate()
                 local_file = gr.Audio(
-                    label="Source",
+                    label="Источник",
                     type="filepath",
                     visible=False,
                     waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -109,17 +109,17 @@ def _render_step_0(total_config: TotalConfig, cookiefile: str | None) -> None:
                 outputs=tab_config.source.instance,
                 show_progress="hidden",
             )
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             song_transfer = _render_song_transfer(
                 [SongTransferOption.STEP_1_AUDIO],
-                "Song",
+                "Трек",
             )
         with gr.Row():
-            retrieve_song_reset_btn = gr.Button("Reset options")
-            retrieve_song_btn = gr.Button("Retrieve song", variant="primary")
-        song_transfer_btn = gr.Button("Transfer song")
+            retrieve_song_reset_btn = gr.Button("Сбросить настройки")
+            retrieve_song_btn = gr.Button("Получить трек", variant="primary")
+        song_transfer_btn = gr.Button("Передать трек")
         song_output = gr.Audio(
-            label="Song",
+            label="Трек",
             type="filepath",
             interactive=False,
             waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -135,7 +135,7 @@ def _render_step_0(total_config: TotalConfig, cookiefile: str | None) -> None:
             partial(
                 exception_harness(
                     retrieve_song,
-                    info_msg="Song retrieved successfully!",
+                    info_msg="Трек успешно получен!",
                 ),
                 cookiefile=cookiefile,
             ),
@@ -165,42 +165,42 @@ def _render_step_0(total_config: TotalConfig, cookiefile: str | None) -> None:
             song_transfer,
             song_output,
             tab_config.input_audio.all,
-        )
+    )
 
 
 def _render_step_1(tab_config: MultiStepSongGenerationConfig) -> None:
-    with gr.Accordion("Step 1: vocal separation", open=False):
+    with gr.Accordion("Шаг 1: разделение вокала", open=False):
         tab_config.input_audio.audio.instance.render()
         tab_config.song_dirs.separate_audio.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             with gr.Row():
                 tab_config.separation_model.instantiate()
                 tab_config.segment_size.instantiate()
             with gr.Row():
                 primary_stem_transfer = _render_song_transfer(
                     [SongTransferOption.STEP_2_VOCALS],
-                    "Primary stem",
+                    "Основной стем",
                 )
                 secondary_stem_transfer = _render_song_transfer(
                     [SongTransferOption.STEP_4_INSTRUMENTALS],
-                    "Secondary stem",
+                    "Второй стем",
                 )
         with gr.Row():
-            separate_audio_reset_btn = gr.Button("Reset options")
-            separate_vocals_btn = gr.Button("Separate vocals", variant="primary")
+            separate_audio_reset_btn = gr.Button("Сбросить настройки")
+            separate_vocals_btn = gr.Button("Отделить вокал", variant="primary")
         with gr.Row():
-            primary_stem_transfer_btn = gr.Button("Transfer primary stem")
-            secondary_stem_transfer_btn = gr.Button("Transfer secondary stem")
+            primary_stem_transfer_btn = gr.Button("Передать основной стем")
+            secondary_stem_transfer_btn = gr.Button("Передать второй стем")
 
         with gr.Row():
             primary_stem_output = gr.Audio(
-                label="Primary stem",
+                label="Основной стем",
                 type="filepath",
                 interactive=False,
                 waveform_options=gr.WaveformOptions(show_recording_waveform=False),
             )
             secondary_stem_output = gr.Audio(
-                label="Secondary stem",
+                label="Второй стем",
                 type="filepath",
                 interactive=False,
                 waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -224,7 +224,7 @@ def _render_step_1(tab_config: MultiStepSongGenerationConfig) -> None:
         separate_vocals_btn.click(
             exception_harness(
                 separate_audio,
-                info_msg="Vocals separated successfully!",
+                info_msg="Вокал успешно разделён!",
             ),
             inputs=[
                 tab_config.input_audio.audio.instance,
@@ -253,21 +253,21 @@ def _render_step_1(tab_config: MultiStepSongGenerationConfig) -> None:
 
 
 def _render_step_2(tab_config: MultiStepSongGenerationConfig) -> None:
-    with gr.Accordion("Step 2: vocal conversion", open=False):
+    with gr.Accordion("Шаг 2: конверсия вокала", open=False):
         tab_config.input_audio.vocals.instance.render()
         tab_config.voice_model.instance.render()
         tab_config.song_dirs.convert_vocals.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             with gr.Row():
                 tab_config.n_octaves.instantiate()
                 tab_config.n_semitones.instantiate()
 
             converted_vocals_transfer = _render_song_transfer(
                 [SongTransferOption.STEP_3_VOCALS],
-                "Converted vocals",
+                "Сконвертированный вокал",
             )
-            with gr.Accordion("Advanced", open=False):
-                with gr.Accordion("Voice synthesis", open=False):
+            with gr.Accordion("Дополнительно", open=False):
+                with gr.Accordion("Синтез голоса", open=False):
                     with gr.Row():
                         tab_config.f0_method.instantiate()
                         tab_config.index_rate.instantiate()
@@ -275,7 +275,7 @@ def _render_step_2(tab_config: MultiStepSongGenerationConfig) -> None:
                         tab_config.rms_mix_rate.instantiate()
                         tab_config.protect_rate.instantiate()
                 _render_step_2_vocal_enrichment(tab_config)
-                with gr.Accordion("Speaker embeddings", open=False), gr.Row():
+                with gr.Accordion("Спикер-эмбеддинги", open=False), gr.Row():
                     with gr.Column():
                         tab_config.embedder_model.instantiate()
                         tab_config.custom_embedder_model.instance.render()
@@ -287,11 +287,11 @@ def _render_step_2(tab_config: MultiStepSongGenerationConfig) -> None:
                     show_progress="hidden",
                 )
         with gr.Row():
-            convert_vocals_reset_btn = gr.Button("Reset options")
-            convert_vocals_btn = gr.Button("Convert vocals", variant="primary")
-        converted_vocals_transfer_btn = gr.Button("Transfer converted vocals")
+            convert_vocals_reset_btn = gr.Button("Сбросить настройки")
+            convert_vocals_btn = gr.Button("Конвертировать вокал", variant="primary")
+        converted_vocals_transfer_btn = gr.Button("Передать сконвертированный вокал")
         converted_vocals_track_output = gr.Audio(
-            label="Converted vocals",
+            label="Сконвертированный вокал",
             type="filepath",
             interactive=False,
             waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -338,7 +338,7 @@ def _render_step_2(tab_config: MultiStepSongGenerationConfig) -> None:
         )
         convert_vocals_btn.click(
             partial(
-                exception_harness(convert, info_msg="Vocals converted successfully!"),
+                exception_harness(convert, info_msg="Вокал успешно сконвертирован!"),
                 content_type=RVCContentType.VOCALS,
             ),
             inputs=[
@@ -375,7 +375,7 @@ def _render_step_2(tab_config: MultiStepSongGenerationConfig) -> None:
 
 
 def _render_step_2_vocal_enrichment(tab_config: MultiStepSongGenerationConfig) -> None:
-    with gr.Accordion("Vocal enrichment", open=False):
+    with gr.Accordion("Обогащение вокала", open=False):
         with gr.Row(), gr.Column():
             tab_config.split_voice.instantiate()
         with gr.Row():
@@ -409,10 +409,10 @@ def _render_step_2_vocal_enrichment(tab_config: MultiStepSongGenerationConfig) -
 
 
 def _render_step_3(tab_config: MultiStepSongGenerationConfig) -> None:
-    with gr.Accordion("Step 3: vocal post-processing", open=False):
+    with gr.Accordion("Шаг 3: постобработка вокала", open=False):
         tab_config.input_audio.converted_vocals.instance.render()
         tab_config.song_dirs.postprocess_vocals.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             tab_config.room_size.instantiate()
             with gr.Row():
                 tab_config.wet_level.instantiate()
@@ -420,15 +420,15 @@ def _render_step_3(tab_config: MultiStepSongGenerationConfig) -> None:
                 tab_config.damping.instantiate()
             effected_vocals_transfer = _render_song_transfer(
                 [SongTransferOption.STEP_5_MAIN_VOCALS],
-                "Effected vocals",
+                "Обработанный вокал",
             )
         with gr.Row():
-            postprocess_vocals_reset_btn = gr.Button("Reset options")
-            postprocess_vocals_btn = gr.Button("Post-process vocals", variant="primary")
-        effected_vocals_transfer_btn = gr.Button("Transfer effected vocals")
+            postprocess_vocals_reset_btn = gr.Button("Сбросить настройки")
+            postprocess_vocals_btn = gr.Button("Постобработка вокала", variant="primary")
+        effected_vocals_transfer_btn = gr.Button("Передать обработанный вокал")
 
         effected_vocals_track_output = gr.Audio(
-            label="Effected vocals",
+            label="Обработанный вокал",
             type="filepath",
             interactive=False,
             waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -454,7 +454,7 @@ def _render_step_3(tab_config: MultiStepSongGenerationConfig) -> None:
         postprocess_vocals_btn.click(
             exception_harness(
                 postprocess,
-                info_msg="Vocals post-processed successfully!",
+                info_msg="Постобработка выполнена успешно!",
             ),
             inputs=[
                 tab_config.input_audio.converted_vocals.instance,
@@ -475,7 +475,7 @@ def _render_step_3(tab_config: MultiStepSongGenerationConfig) -> None:
 
 
 def _render_step_4(tab_config: MultiStepSongGenerationConfig) -> None:
-    with gr.Accordion("Step 4: pitch shift of background audio", open=False):
+    with gr.Accordion("Шаг 4: сдвиг тона фоновых дорожек", open=False):
         with gr.Row():
             tab_config.input_audio.instrumentals.instance.render()
             tab_config.input_audio.backup_vocals.instance.render()
@@ -483,41 +483,41 @@ def _render_step_4(tab_config: MultiStepSongGenerationConfig) -> None:
             tab_config.n_semitones_instrumentals.instantiate()
             tab_config.n_semitones_backup_vocals.instantiate()
         tab_config.song_dirs.pitch_shift_background.instance.render()
-        with gr.Accordion("Options", open=False), gr.Row():
+        with gr.Accordion("Настройки", open=False), gr.Row():
             shifted_instrumentals_transfer = _render_song_transfer(
                 [SongTransferOption.STEP_5_INSTRUMENTALS],
-                "Pitch-shifted instrumentals",
+                "Инструментал со сдвигом",
             )
             shifted_backup_vocals_transfer = _render_song_transfer(
                 [SongTransferOption.STEP_5_BACKUP_VOCALS],
-                "Pitch-shifted backup vocals",
+                "Бэки со сдвигом",
             )
         with gr.Row():
             pitch_shift_instrumentals_btn = gr.Button(
-                "Pitch shift instrumentals",
+                "Сдвиг тона инструментала",
                 variant="primary",
             )
             pitch_shift_backup_vocals_btn = gr.Button(
-                "Pitch shift backup vocals",
+                "Сдвиг тона бэков",
                 variant="primary",
             )
         with gr.Row():
             shifted_instrumentals_transfer_btn = gr.Button(
-                "Transfer shifted instrumentals",
+                "Передать инструментал со сдвигом",
             )
             shifted_backup_vocals_transfer_btn = gr.Button(
-                "Transfer shifted backup vocals",
+                "Передать бэки со сдвигом",
             )
-        pitch_shift_background_reset_btn = gr.Button("Reset options")
+        pitch_shift_background_reset_btn = gr.Button("Сбросить настройки")
         with gr.Row():
             shifted_instrumentals_track_output = gr.Audio(
-                label="Pitch-shifted instrumentals",
+                label="Инструментал со сдвигом",
                 type="filepath",
                 interactive=False,
                 waveform_options=gr.WaveformOptions(show_recording_waveform=False),
             )
             shifted_backup_vocals_track_output = gr.Audio(
-                label="Pitch-shifted backup vocals",
+                label="Бэки со сдвигом",
                 type="filepath",
                 interactive=False,
                 waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -541,7 +541,7 @@ def _render_step_4(tab_config: MultiStepSongGenerationConfig) -> None:
         pitch_shift_instrumentals_btn.click(
             exception_harness(
                 pitch_shift,
-                info_msg="Instrumentals pitch-shifted successfully!",
+                info_msg="Инструментал успешно сдвинут по тону!",
             ),
             inputs=[
                 tab_config.input_audio.instrumentals.instance,
@@ -553,7 +553,7 @@ def _render_step_4(tab_config: MultiStepSongGenerationConfig) -> None:
         pitch_shift_backup_vocals_btn.click(
             exception_harness(
                 pitch_shift,
-                info_msg="Backup vocals pitch-shifted successfully!",
+                info_msg="Бэки успешно сдвинуты по тону!",
             ),
             inputs=[
                 tab_config.input_audio.backup_vocals.instance,
@@ -586,13 +586,13 @@ def _render_step_5(
     total_config: TotalConfig,
     tab_config: MultiStepSongGenerationConfig,
 ) -> None:
-    with gr.Accordion("Step 5: song mixing", open=False):
+    with gr.Accordion("Шаг 5: сведение кавера", open=False):
         with gr.Row():
             tab_config.input_audio.main_vocals.instance.render()
             tab_config.input_audio.shifted_instrumentals.instance.render()
             tab_config.input_audio.shifted_backup_vocals.instance.render()
         tab_config.song_dirs.mix.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             with gr.Row():
                 tab_config.main_gain.instantiate()
                 tab_config.inst_gain.instantiate()
@@ -611,13 +611,13 @@ def _render_step_5(
                 )
                 tab_config.output_sr.instantiate()
                 tab_config.output_format.instantiate()
-            song_cover_transfer = _render_song_transfer([], "Song cover")
+            song_cover_transfer = _render_song_transfer([], "Кавер")
         with gr.Row():
-            mix_reset_btn = gr.Button("Reset options")
-            mix_btn = gr.Button("Mix song cover", variant="primary")
-        song_cover_transfer_btn = gr.Button("Transfer song cover")
+            mix_reset_btn = gr.Button("Сбросить настройки")
+            mix_btn = gr.Button("Свести кавер", variant="primary")
+        song_cover_transfer_btn = gr.Button("Передать кавер")
         song_cover_output = gr.Audio(
-            label="Song cover",
+            label="Кавер",
             type="filepath",
             interactive=False,
             waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -666,7 +666,7 @@ def _render_step_5(
             },
             outputs=temp_audio_gains,
         ).then(
-            exception_harness(mix_song, info_msg="Song cover succesfully generated."),
+            exception_harness(mix_song, info_msg="Кавер успешно собран."),
             inputs=[
                 temp_audio_gains,
                 tab_config.song_dirs.mix.instance,

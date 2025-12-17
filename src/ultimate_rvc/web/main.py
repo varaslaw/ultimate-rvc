@@ -59,7 +59,7 @@ total_config = load_config(config_name, TotalConfig) if config_name else TotalCo
 
 def render_app() -> gr.Blocks:
     """
-    Render the Ultimate RVC web application.
+    Render the Ultimate RVC AISingers RUS web application.
 
     Returns
     -------
@@ -79,12 +79,12 @@ def render_app() -> gr.Blocks:
     cache_delete_cutoff = 86400  # and delete files older than 24 hours
 
     with gr.Blocks(
-        title="Ultimate RVC",
+        title="Ultimate RVC AISingers RUS 🇷🇺💙",
         theme=gr.Theme.load(str(Path(__file__).parent / "config/theme.json")),
         css=css,
         delete_cache=(cache_delete_frequency, cache_delete_cutoff),
     ) as app:
-        gr.HTML("<h1>Ultimate RVC 💙</h1>")
+        gr.HTML("<h1>Ultimate RVC AISingers RUS 🇷🇺💙</h1>")
         for component_config in [
             total_config.song.one_click.voice_model,
             total_config.song.one_click.cached_song,
@@ -122,18 +122,18 @@ def render_app() -> gr.Blocks:
         ]:
             component_config.instantiate()
         # main tab
-        with gr.Tab("Generate", elem_id="generate-tab"):
-            with gr.Tab("Song covers"):
+        with gr.Tab("Генерация", elem_id="generate-tab"):
+            with gr.Tab("Каверы"):
                 render_song_cover_one_click_tab(total_config, cookiefile)
                 render_song_cover_multi_step_tab(total_config, cookiefile)
-            with gr.Tab("Speech"):
+            with gr.Tab("Озвучка"):
                 render_speech_one_click_tab(total_config)
                 render_speech_multi_step_tab(total_config)
-        with gr.Tab("Models", elem_id="manage-tab"):
+        with gr.Tab("Модели", elem_id="manage-tab"):
             render_models_tab(total_config)
-        with gr.Tab("Audio", elem_id="audio-tab"):
+        with gr.Tab("Аудио", elem_id="audio-tab"):
             render_audio_tab(total_config)
-        with gr.Tab("Settings", elem_id="settings-tab"):
+        with gr.Tab("Настройки", elem_id="settings-tab"):
             render_settings_tab(total_config)
 
         app.load(
@@ -180,7 +180,7 @@ def render_app() -> gr.Blocks:
 
 def _init_dropdowns() -> list[gr.Dropdown]:
     """
-    Initialize the Ultimate RVC web application by updating the choices
+    Initialize the Ultimate RVC AISingers RUS web application by updating the choices
     and default values of non-static dropdown components.
 
     Returns
@@ -284,7 +284,7 @@ def start_app(
         ),
     ] = False,
 ) -> None:
-    """Run the Ultimate RVC web application."""
+    """Run the Ultimate RVC AISingers RUS web application."""
     os.environ["GRADIO_TEMP_DIR"] = str(TEMP_DIR)
     gr.set_static_paths([MODELS_DIR, AUDIO_DIR])
     app.queue()

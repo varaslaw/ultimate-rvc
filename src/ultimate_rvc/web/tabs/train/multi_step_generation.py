@@ -60,7 +60,7 @@ def render(total_config: TotalConfig) -> None:
         Ultimate RVC web UI.
 
     """
-    with gr.Tab("Multi-step generation"):
+    with gr.Tab("Обучение по шагам"):
         _render_step_1(total_config)
         _render_step_2(total_config)
         _render_step_3(total_config)
@@ -70,14 +70,14 @@ def _render_step_1(total_config: TotalConfig) -> None:
     tab_config = total_config.training.multi_step
 
     current_dataset = gr.State()
-    with gr.Accordion("Step 1: dataset preprocessing", open=True):
+    with gr.Accordion("Шаг 1: подготовка датасета", open=True):
         with gr.Row():
             tab_config.dataset_type.instantiate()
             tab_config.dataset.instance.render()
             tab_config.dataset_name.instantiate()
         audio_files = gr.File(
             file_count="multiple",
-            label="Audio files",
+            label="Аудиофайлы",
             file_types=[f".{e.value}" for e in AudioExt],
         )
 
@@ -96,8 +96,7 @@ def _render_step_1(total_config: TotalConfig) -> None:
             exception_harness(
                 populate_dataset,
                 info_msg=(
-                    "[+] Audio files successfully added to the dataset with the"
-                    " provided name!"
+                    "[+] Аудиофайлы успешно добавлены в выбранный датасет!"
                 ),
             ),
             inputs=[tab_config.dataset_name.instance, audio_files],
@@ -118,7 +117,7 @@ def _render_step_1(total_config: TotalConfig) -> None:
         )
         with gr.Row():
             tab_config.preprocess_model.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             with gr.Row():
                 tab_config.sample_rate.instantiate()
                 tab_config.normalization_mode.instantiate()
@@ -159,17 +158,17 @@ def _render_step_1(total_config: TotalConfig) -> None:
                 )
         with gr.Row(equal_height=True):
             reset_preprocess_btn = gr.Button(
-                "Reset options",
+                "Сбросить настройки",
                 variant="secondary",
                 scale=2,
             )
             preprocess_btn = gr.Button(
-                "Preprocess dataset",
+                "Подготовить датасет",
                 variant="primary",
                 scale=2,
             )
             preprocess_msg = gr.Textbox(
-                label="Output message",
+                label="Сообщение",
                 interactive=False,
                 scale=3,
             )
@@ -192,7 +191,7 @@ def _render_step_1(total_config: TotalConfig) -> None:
                 concurrency_limit=1,
                 concurrency_id=ConcurrencyId.GPU,
             ).success(
-                partial(render_msg, "[+] Dataset successfully preprocessed!"),
+                partial(render_msg, "[+] Датасет успешно подготовлен!"),
                 outputs=preprocess_msg,
                 show_progress="hidden",
             ).then(
@@ -242,10 +241,10 @@ def _render_step_1(total_config: TotalConfig) -> None:
 
 def _render_step_2(total_config: TotalConfig) -> None:
     tab_config = total_config.training.multi_step
-    with gr.Accordion("Step 2: feature extraction", open=True):
+    with gr.Accordion("Шаг 2: извлечение признаков", open=True):
         with gr.Row():
             tab_config.extract_model.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             with gr.Row():
                 with gr.Column():
                     tab_config.f0_method.instantiate()
@@ -281,12 +280,12 @@ def _render_step_2(total_config: TotalConfig) -> None:
             )
         with gr.Row(equal_height=True):
             reset_extract_btn = gr.Button(
-                "Reset options",
+                "Сбросить настройки",
                 variant="secondary",
                 scale=2,
             )
-            extract_btn = gr.Button("Extract features", variant="primary", scale=2)
-            extract_msg = gr.Textbox(label="Output message", interactive=False, scale=3)
+            extract_btn = gr.Button("Извлечь признаки", variant="primary", scale=2)
+            extract_msg = gr.Textbox(label="Сообщение", interactive=False, scale=3)
             extract_btn.click(
                 exception_harness(extract_features),
                 inputs=[
@@ -303,7 +302,7 @@ def _render_step_2(total_config: TotalConfig) -> None:
                 concurrency_limit=1,
                 concurrency_id=ConcurrencyId.GPU,
             ).success(
-                partial(render_msg, "[+] Features successfully extracted!"),
+                partial(render_msg, "[+] Признаки успешно извлечены!"),
                 outputs=extract_msg,
                 show_progress="hidden",
             ).then(
@@ -335,26 +334,26 @@ def _render_step_2(total_config: TotalConfig) -> None:
 
 def _render_step_3(total_config: TotalConfig) -> None:
     tab_config = total_config.training.multi_step
-    with gr.Accordion("Step 3: model training"):
+    with gr.Accordion("Шаг 3: обучение модели"):
         with gr.Row():
             tab_config.train_model.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             _render_step_3_main_settings(tab_config)
             _render_step_3_algorithmic_settings(tab_config)
             _render_step_3_data_storage_settings(tab_config)
             _render_step_3_device_settings(tab_config)
 
         with gr.Row(equal_height=True):
-            reset_train_btn = gr.Button("Reset options", variant="secondary", scale=2)
-            train_btn = gr.Button("Train voice model", variant="primary", scale=2)
+            reset_train_btn = gr.Button("Сбросить настройки", variant="secondary", scale=2)
+            train_btn = gr.Button("Обучить голосовую модель", variant="primary", scale=2)
             stop_train_btn = gr.Button(
-                "Stop training",
+                "Остановить обучение",
                 variant="primary",
                 scale=2,
                 visible=False,
             )
-            train_msg = gr.Textbox(label="Output message", interactive=False, scale=3)
-        voice_model_files = gr.File(label="Voice model files", interactive=False)
+            train_msg = gr.Textbox(label="Сообщение", interactive=False, scale=3)
+        voice_model_files = gr.File(label="Файлы голосовой модели", interactive=False)
         train_btn.click(
             partial(toggle_visible_component, 2, 1, reset_values=False),
             outputs=[train_btn, stop_train_btn],
@@ -397,7 +396,7 @@ def _render_step_3(total_config: TotalConfig) -> None:
         )
 
         train_btn_click.success(
-            partial(render_msg, "[+] Voice model successfully trained!"),
+            partial(render_msg, "[+] Голосовая модель успешно обучена!"),
             outputs=train_msg,
             show_progress="hidden",
         ).then(
@@ -476,7 +475,7 @@ def _render_step_3_main_settings(tab_config: MultiStepTrainingConfig) -> None:
 
 
 def _render_step_3_algorithmic_settings(tab_config: MultiStepTrainingConfig) -> None:
-    with gr.Accordion("Algorithmic", open=False):
+    with gr.Accordion("Алгоритмы", open=False):
         with gr.Row():
             tab_config.vocoder.instantiate()
             tab_config.index_algorithm.instantiate()
@@ -493,7 +492,7 @@ def _render_step_3_algorithmic_settings(tab_config: MultiStepTrainingConfig) -> 
 
 
 def _render_step_3_data_storage_settings(tab_config: MultiStepTrainingConfig) -> None:
-    with gr.Accordion("Data storage", open=False):
+    with gr.Accordion("Хранение данных", open=False):
         with gr.Row():
             tab_config.save_interval.instantiate()
         with gr.Row():
@@ -516,7 +515,7 @@ def _render_step_3_data_storage_settings(tab_config: MultiStepTrainingConfig) ->
 
 
 def _render_step_3_device_settings(tab_config: MultiStepTrainingConfig) -> None:
-    with gr.Accordion("Device and memory", open=False):
+    with gr.Accordion("Устройства и память", open=False):
         with gr.Row():
             with gr.Column():
                 tab_config.training_acceleration.instantiate()
@@ -562,7 +561,7 @@ def _toggle_dataset_input(
     return (
         gr.Textbox(
             visible=is_new_dataset,
-            value="My dataset",  # TODO this should be component_config.value
+            value="Мой датасет",  # TODO this should be component_config.value
         ),
         gr.File(visible=is_new_dataset, value=None),
         gr.Dropdown(visible=not is_new_dataset, value=None),
