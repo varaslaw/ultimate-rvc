@@ -50,36 +50,36 @@ def _render_config_files_tab(
     total_config: TotalConfig,
 ) -> None:
     components = [config.instance for config in total_config.all]
-    with gr.Tab("Configuration files"):
-        with gr.Accordion("Save configuration"), gr.Row():
+    with gr.Tab("Файлы конфигурации"):
+        with gr.Accordion("Сохранить конфигурацию"), gr.Row():
             with gr.Column():
                 save_config_name = gr.Textbox(
-                    label="Configuration name",
+                    label="Имя конфигурации",
                     info=(
-                        "The name of the configuration to save the current UI"
-                        " settings to."
+                        "Название конфигурации, в которую будут сохранены текущие"
+                        " настройки интерфейса."
                     ),
-                    placeholder="Enter a name for the configuration",
+                    placeholder="Введите название конфигурации",
                     max_lines=1,
-                    value="Default Configuration",
+                    value="Конфигурация по умолчанию",
                 )
-                save_config_btn = gr.Button("Save", variant="primary")
+                save_config_btn = gr.Button("Сохранить", variant="primary")
             with gr.Column():
-                save_config_msg = gr.Textbox(label="Output message", interactive=False)
+                save_config_msg = gr.Textbox(label="Сообщение", interactive=False)
 
-        with gr.Accordion("Load configuration", open=False), gr.Row():
+        with gr.Accordion("Загрузить конфигурацию", open=False), gr.Row():
             with gr.Column():
                 tab_config.load_config_name.instance.render()
-                load_config_btn = gr.Button("Load", variant="primary")
+                load_config_btn = gr.Button("Загрузить", variant="primary")
             with gr.Column():
-                load_config_msg = gr.Textbox(label="Output message", interactive=False)
+                load_config_msg = gr.Textbox(label="Сообщение", interactive=False)
 
         save_config_btn.click(
             exception_harness(save_total_config_values),
             inputs=[save_config_name, *components],
             outputs=save_config_msg,
         ).success(
-            partial(render_msg, "[-] Successfully saved configuration!"),
+            partial(render_msg, "[-] Конфигурация успешно сохранена!"),
             outputs=save_config_msg,
             show_progress="hidden",
         ).then(
@@ -99,19 +99,19 @@ def _render_config_files_tab(
             outputs=components,
             show_progress_on=load_config_msg,
         ).success(
-            partial(render_msg, "[-] Successfully loaded configuration!"),
+            partial(render_msg, "[-] Конфигурация успешно загружена!"),
             outputs=load_config_msg,
             show_progress="hidden",
         )
 
-        with gr.Accordion("Delete configuration(s)", open=False), gr.Row():
+        with gr.Accordion("Удалить конфигурации", open=False), gr.Row():
             with gr.Column():
                 tab_config.delete_config_names.instance.render()
-                delete_config_btn = gr.Button("Delete selected", variant="secondary")
-                delete_all_config_btn = gr.Button("Delete all", variant="primary")
+                delete_config_btn = gr.Button("Удалить выбранные", variant="secondary")
+                delete_all_config_btn = gr.Button("Удалить все", variant="primary")
             with gr.Column():
                 delete_config_msg = gr.Textbox(
-                    label="Output message",
+                    label="Сообщение",
                     interactive=False,
                 )
         delete_config_click = setup_delete_event(
@@ -122,17 +122,16 @@ def _render_config_files_tab(
                 tab_config.delete_config_names.instance,
             ],
             delete_config_msg,
-            "Are you sure you want to delete the configurations with the selected"
-            " names?",
-            "[-] Successfully deleted the configurations with the selected names!",
+            "Удалить конфигурации с выбранными именами?",
+            "[-] Выбранные конфигурации удалены!",
         )
         delete_all_config_click = setup_delete_event(
             delete_all_config_btn,
             delete_all_configs,
             [tab_config.dummy_checkbox.instance],
             delete_config_msg,
-            "Are you sure you want to delete all configuration?",
-            "[-] Successfully deleted all configuration!",
+            "Удалить все конфигурации?",
+            "[-] Все конфигурации удалены!",
         )
         for event in [delete_config_click, delete_all_config_click]:
             event.success(
@@ -146,25 +145,24 @@ def _render_config_files_tab(
 
 
 def _render_temp_files_tab(tab_config: SettingsManagementConfig) -> None:
-    with gr.Tab("Temporary files"):
+    with gr.Tab("Временные файлы"):
         gr.Markdown("")
         with gr.Row(equal_height=True):
-            temporary_files_btn = gr.Button("Delete all", variant="primary")
-            temporary_files_msg = gr.Textbox(label="Output message", interactive=False)
+            temporary_files_btn = gr.Button("Удалить всё", variant="primary")
+            temporary_files_msg = gr.Textbox(label="Сообщение", interactive=False)
 
         temporary_files_btn.click(
             confirmation_harness(delete_temp_files),
             inputs=tab_config.dummy_checkbox.instance,
             outputs=temporary_files_msg,
             js=confirm_box_js(
-                "Are you sure you want to delete all temporary files? Any files"
-                " uploaded directly via the UI will not be available for further"
-                " processing until they are re-uploaded.",
+                "Удалить все временные файлы? Любые загруженные через UI файлы"
+                " нужно будет загрузить снова перед повторной обработкой.",
             ),
         ).success(
             partial(
                 render_msg,
-                "[-] Successfully deleted all temporary files!",
+                "[-] Все временные файлы удалены!",
             ),
             outputs=temporary_files_msg,
             show_progress="hidden",

@@ -43,15 +43,15 @@ class BaseTabConfig(BaseModel):
     """
 
     embedder_model: DropdownConfig = DropdownConfig(
-        label="Embedder model",
-        info="The model to use for generating speaker embeddings.",
+        label="Модель эмбеддера",
+        info="Модель, которая используется для построения голосовых эмбеддингов.",
         value=EmbedderModel.CONTENTVEC,
         choices=list(EmbedderModel),
         exclude_value=True,
     )
     custom_embedder_model: DropdownConfig = DropdownConfig(
-        label="Custom embedder model",
-        info="Select a custom embedder model from the dropdown.",
+        label="Пользовательская модель эмбеддера",
+        info="Выберите пользовательскую модель эмбеддера из списка.",
         value=None,
         visible=False,
         render=False,
@@ -106,46 +106,50 @@ class GenerationConfig(BaseTabConfig):
     """
 
     voice_model: DropdownConfig = DropdownConfig(
-        label="Voice model",
-        info="Select a model to use for voice conversion.",
+        label="Голосовая модель",
+        info="Выберите модель, которая будет использоваться для конверсии голоса.",
         value=None,
         render=False,
         exclude_value=True,
     )
     f0_method: DropdownConfig = DropdownConfig(
-        label="Pitch extraction algorithm",
-        info="RMVPE is recommended for most cases and is the default.",
+        label="Алгоритм извлечения высоты",
+        info=(
+            "RMVPE рекомендуем по умолчанию: он быстро и точнее всего извлекает"
+            " высоту для большинства случаев."
+        ),
         value=F0Method.RMVPE,
         choices=list(F0Method),
         multiselect=False,
     )
     index_rate: SliderConfig = SliderConfig(
-        label="Index rate",
+        label="Сила индекса",
         info=(
-            "Increase to bias the conversion towards the accent of the voice model."
-            " Decrease to potentially reduce artifacts coming from the voice"
-            " model.<br><br><br>"
+            "Чем выше значение, тем сильнее конверсия стремится к акценту модели."
+            " Уменьшение может снизить артефакты, приходящие из модели"
+            " голоса.<br><br><br>"
         ),
         value=0.3,
         minimum=0.0,
         maximum=1.0,
     )
     rms_mix_rate: SliderConfig = SliderConfig(
-        label="RMS mix rate",
+        label="Смешивание RMS",
         info=(
-            "How much to mimic the loudness (0) of the input voice or a fixed loudness"
-            " (1). A value of 1 is recommended for most cases.<br><br>"
+            "Насколько сохранять громкость исходного голоса (0) или приводить её"
+            " к фиксированной громкости (1). Значение 1 рекомендовано в большинстве"
+            " случаев.<br><br>"
         ),
         value=1.0,
         minimum=0.0,
         maximum=1.0,
     )
     protect_rate: SliderConfig = SliderConfig(
-        label="Protect rate",
+        label="Степень защиты",
         info=(
-            "Controls the extent to which consonants and breathing sounds are protected"
-            " from artifacts. A higher value offers more protection but may worsen the"
-            " indexing effect.<br><br>"
+            "Определяет, насколько активно защищать согласные и дыхание от артефактов."
+            " Чем выше значение, тем больше защита, но может ухудшиться эффект"
+            " индексации.<br><br>"
         ),
         value=0.33,
         minimum=0.0,
@@ -153,24 +157,24 @@ class GenerationConfig(BaseTabConfig):
     )
 
     split_voice: CheckboxConfig = CheckboxConfig(
-        label="Split input voice",
+        label="Делить входной голос",
         info=(
-            "Whether to split the input voice track into smaller segments before"
-            " converting it. This can improve output quality for longer voice tracks."
+            "Разделять ли входную дорожку на мелкие сегменты перед конверсией."
+            " Это может улучшить качество для длинных треков."
         ),
         value=False,
     )
     autotune_voice: CheckboxConfig = CheckboxConfig(
-        label="Autotune converted voice",
-        info="Whether to apply autotune to the converted voice.",
+        label="Автотюн для конвертированного голоса",
+        info="Применять ли автотюн к сконвертированному голосу.",
         value=False,
         exclude_value=True,
     )
     autotune_strength: SliderConfig = SliderConfig(
-        label="Autotune intensity",
+        label="Интенсивность автотюна",
         info=(
-            "Higher values result in stronger snapping to the chromatic grid and"
-            " artifacting."
+            "Высокие значения сильнее привязывают ноты к хроматической сетке и"
+            " могут добавить артефакты."
         ),
         value=1.0,
         minimum=0.0,
@@ -178,19 +182,18 @@ class GenerationConfig(BaseTabConfig):
         visible=False,
     )
     proposed_pitch: CheckboxConfig = CheckboxConfig(
-        label="Proposed pitch",
+        label="Предложенная высота",
         info=(
-            "Whether to adjust the pitch of the converted voice so that it matches the"
-            " range of the voice model used."
+            "Настраивать ли высоту конвертированного голоса под диапазон выбранной"
+            " модели."
         ),
         value=False,
         exclude_value=True,
     )
     proposed_pitch_threshold: SliderConfig = SliderConfig(
-        label="Proposed pitch threshold",
+        label="Порог предложенной высоты",
         info=(
-            "Male voice models typically use 155.0 and female voice models typically"
-            " use 255.0."
+            "Для мужских моделей обычно 155.0, для женских — примерно 255.0."
         ),
         value=155.0,
         minimum=50.0,
@@ -198,28 +201,28 @@ class GenerationConfig(BaseTabConfig):
         visible=False,
     )
     sid: NumberConfig = NumberConfig(
-        label="Speaker ID",
-        info="Speaker ID for multi-speaker-models.",
+        label="ID спикера",
+        info="Идентификатор спикера для многоголосовых моделей.",
         value=0,
         precision=0,
     )
     output_sr: DropdownConfig = DropdownConfig(
-        label="Output sample rate",
-        info="The sample rate of the mixed output track.",
+        label="Частота дискретизации вывода",
+        info="Частота дискретизации итоговой смешанной дорожки.",
         value=SampleRate.HZ_44K,
         choices=list(SampleRate),
     )
     output_format: DropdownConfig = DropdownConfig(
-        label="Output format",
-        info="The audio format of the mixed output track.",
+        label="Формат вывода",
+        info="Аудиоформат итоговой дорожки.",
         value=AudioExt.MP3,
         choices=list(AudioExt),
     )
     output_name: TextboxConfig = TextboxConfig(
-        label="Output name",
-        info="If no name is provided, a suitable name will be generated automatically.",
+        label="Имя файла",
+        info="Если имя не указано, подходящее название будет создано автоматически.",
         value=None,
-        placeholder="Ultimate RVC output",
+        placeholder="Выходной файл Ultimate RVC AISingers RUS",
         exclude_value=True,
     )
 
@@ -266,76 +269,76 @@ class SongGenerationConfig(GenerationConfig):
     """
 
     source_type: DropdownConfig = DropdownConfig(
-        label="Source type",
-        info="The type of source to retrieve a song from.",
+        label="Тип источника",
+        info="Откуда брать трек для кавера.",
         value=SongSourceType.PATH,
         choices=list(SongSourceType),
         type="index",
         exclude_value=True,
     )
     source: TextboxConfig = TextboxConfig(
-        label="Source",
-        info="Link to a song on YouTube or the full path of a local audio file.",
+        label="Источник",
+        info="Ссылка на трек в YouTube или полный путь к локальному аудиофайлу.",
         value=None,
         exclude_value=True,
     )
     cached_song: DropdownConfig = DropdownConfig(
-        label="Source",
-        info="Select a song from the list of cached songs.",
+        label="Источник",
+        info="Выберите трек из списка уже загруженных.",
         value=None,
         visible=False,
         render=False,
         exclude_value=True,
     )
     clean_voice: CheckboxConfig = CheckboxConfig(
-        label="Clean converted voice",
-        info="Whether to clean the converted voice using noise reduction algorithms.",
+        label="Очистка конвертированного голоса",
+        info="Применять ли шумоподавление к сконвертированному голосу.",
         value=False,
         exclude_value=True,
     )
     clean_strength: SliderConfig = SliderConfig.clean_strength(visible=False)
     room_size: SliderConfig = SliderConfig(
-        label="Room size",
+        label="Размер помещения",
         info=(
-            "Size of the room which reverb effect simulates. Increase for longer reverb"
-            " time."
+            "Размер пространства, которое симулирует реверберация. Увеличьте для"
+            " более длинного хвоста."
         ),
         value=0.15,
         minimum=0.0,
         maximum=1.0,
     )
     wet_level: SliderConfig = SliderConfig(
-        label="Wetness level",
-        info="Loudness of converted vocals with reverb effect applied.",
+        label="Уровень wet",
+        info="Громкость обработанных голосов с реверберацией.",
         value=0.2,
         minimum=0.0,
         maximum=1.0,
     )
     dry_level: SliderConfig = SliderConfig(
-        label="Dryness level",
-        info="Loudness of converted vocals without reverb effect applied.",
+        label="Уровень dry",
+        info="Громкость обработанных голосов без реверберации.",
         value=0.8,
         minimum=0.0,
         maximum=1.0,
     )
     damping: SliderConfig = SliderConfig(
-        label="Damping level",
-        info="Absorption of high frequencies in reverb effect.",
+        label="Затухание",
+        info="Поглощение высоких частот в реверберации.",
         value=0.7,
         minimum=0.0,
         maximum=1.0,
     )
     main_gain: SliderConfig = SliderConfig.gain(
-        label="Main gain",
-        info="The gain to apply to the main vocals.",
+        label="Громкость основного голоса",
+        info="Усиление для основной вокальной партии.",
     )
     inst_gain: SliderConfig = SliderConfig.gain(
-        label="Instrumentals gain",
-        info="The gain to apply to the instrumentals.",
+        label="Громкость инструментала",
+        info="Усиление для инструментала.",
     )
     backup_gain: SliderConfig = SliderConfig.gain(
-        label="Backup gain",
-        info="The gain to apply to the backup vocals.",
+        label="Громкость бэков",
+        info="Усиление для бэк-вокала.",
     )
 
 
@@ -385,42 +388,42 @@ class SpeechGenerationConfig(GenerationConfig):
     """
 
     source_type: DropdownConfig = DropdownConfig(
-        label="Source type",
-        info="The type of source to generate speech from.",
+        label="Тип источника",
+        info="Откуда брать текст или аудио для генерации речи.",
         value=SpeechSourceType.TEXT,
         choices=list(SpeechSourceType),
         type="index",
         exclude_value=True,
     )
     source: TextboxConfig = TextboxConfig(
-        label="Source",
-        info="Text to generate speech from",
+        label="Источник",
+        info="Текст, который нужно озвучить",
         value=None,
         exclude_value=True,
     )
     edge_tts_voice: DropdownConfig = DropdownConfig(
-        label="Edge TTS voice",
-        info="Select a voice to use for text to speech conversion.",
+        label="Голос Edge TTS",
+        info="Выберите голос для синтеза речи через Edge TTS.",
         value=None,
         render=False,
         exclude_value=True,
     )
     n_octaves: SliderConfig = SliderConfig.octave_shift(
-        label="Octave shift",
+        label="Сдвиг по октавам",
         info=(
-            "The number of octaves to pitch-shift the converted speech by. Use 1 for"
-            " male-to-female and -1 for vice-versa."
+            "Количество октав, на которое смещается высота конвертированной речи."
+            " 1 — мужской → женский, -1 — наоборот."
         ),
     )
     n_semitones: SliderConfig = SliderConfig.semitone_shift(
-        label="Semitone shift",
-        info="The number of semi-tones to pitch-shift the converted speech by.",
+        label="Сдвиг по полутонам",
+        info="Количество полутонов для смещения высоты конвертированной речи.",
     )
     tts_pitch_shift: SliderConfig = SliderConfig(
-        label="Edge TTS pitch shift",
+        label="Сдвиг высоты Edge TTS",
         info=(
-            "The number of hertz to shift the pitch of the speech generated by Edge"
-            " TTS."
+            "На сколько герц смещать высоту речи, созданной Edge TTS, ещё до"
+            " конверсии."
         ),
         value=0,
         minimum=-100,
@@ -428,31 +431,31 @@ class SpeechGenerationConfig(GenerationConfig):
         step=1,
     )
     tts_speed_change: SliderConfig = SliderConfig(
-        label="TTS speed change",
-        info="The percentual change to the speed of the speech generated by Edge TTS.",
+        label="Скорость TTS",
+        info="Изменение скорости речи Edge TTS в процентах.",
         value=0,
         minimum=-50,
         maximum=100,
         step=1,
     )
     tts_volume_change: SliderConfig = SliderConfig(
-        label="TTS volume change",
-        info="The percentual change to the volume of the speech generated by Edge TTS.",
+        label="Громкость TTS",
+        info="Процентное изменение громкости речи, сгенерированной Edge TTS.",
         value=0,
         minimum=-100,
         maximum=100,
         step=1,
     )
     clean_voice: CheckboxConfig = CheckboxConfig(
-        label="Clean converted voice",
-        info="Whether to clean the converted voice using noise reduction algorithms.",
+        label="Очистка конвертированного голоса",
+        info="Применять ли шумоподавление к сконвертированной речи.",
         value=True,
         exclude_value=True,
     )
     clean_strength: SliderConfig = SliderConfig.clean_strength(visible=True)
     output_gain: SliderConfig = SliderConfig.gain(
-        label="Output gain",
-        info="The gain to apply to the converted speech.<br><br>",
+        label="Громкость вывода",
+        info="Усиление, применяемое к итоговой речи.<br><br>",
     )
 
 
@@ -571,17 +574,17 @@ class TrainingConfig(BaseTabConfig):
     """
 
     dataset_type: DropdownConfig = DropdownConfig(
-        label="Dataset type",
-        info="Select the type of dataset to preprocess.",
+        label="Тип датасета",
+        info="Выберите тип датасета, который хотите подготовить.",
         value=DatasetType.NEW_DATASET,
         choices=list(DatasetType),
         exclude_value=True,
     )
     dataset: DropdownConfig = DropdownConfig(
-        label="Dataset path",
+        label="Путь к датасету",
         info=(
-            "The path to an existing dataset. Either select a path to a previously"
-            " created dataset or provide a path to an external dataset."
+            "Путь к существующему датасету. Можно выбрать ранее созданный набор"
+            " или указать внешний путь."
         ),
         value=None,
         allow_custom_value=True,
@@ -590,19 +593,19 @@ class TrainingConfig(BaseTabConfig):
         exclude_value=True,
     )
     dataset_name: TextboxConfig = TextboxConfig(
-        label="Dataset name",
+        label="Имя датасета",
         info=(
-            "The name of the new dataset. If the dataset already exists, the provided"
-            " audio files will be added to it."
+            "Название нового датасета. Если он уже существует, выбранные аудио"
+            " будут к нему добавлены."
         ),
         value="My dataset",
         exclude_value=True,
     )
     preprocess_model: DropdownConfig = DropdownConfig(
-        label="Model name",
+        label="Имя модели",
         info=(
-            "Name of the model to preprocess the given dataset for. Either select an"
-            " existing model from the dropdown or provide the name of a new model."
+            "Название модели, под которую будет готовиться датасет. Можно выбрать"
+            " существующую или ввести новую."
         ),
         value="My model",
         allow_custom_value=True,
@@ -610,54 +613,48 @@ class TrainingConfig(BaseTabConfig):
         exclude_value=True,
     )
     sample_rate: DropdownConfig = DropdownConfig(
-        label="Sample rate",
-        info="Target sample rate for the audio files in the provided dataset.",
+        label="Частота дискретизации",
+        info="Целевая частота дискретизации для аудио в датасете.",
         value=TrainingSampleRate.HZ_40K,
         choices=list(TrainingSampleRate),
     )
     normalization_mode: DropdownConfig = DropdownConfig(
-        label="Normalization mode",
-        info=(
-            "The normalization method to use for the audio files in the provided"
-            " dataset."
-        ),
+        label="Режим нормализации",
+        info="Метод нормализации, применяемый к аудио в датасете.",
         value=AudioNormalizationMode.POST,
         choices=list(AudioNormalizationMode),
     )
     filter_audio: CheckboxConfig = CheckboxConfig(
-        label="Filter audio",
+        label="Фильтрация аудио",
         info=(
-            "Whether to remove low-frequency sounds from the audio files in the"
-            " provided dataset by applying a high-pass butterworth filter.<br><br>"
+            "Удалять ли низкочастотные шумы с помощью ВЧ-фильтра Баттерворта"
+            " для файлов в датасете.<br><br>"
         ),
         value=True,
     )
     clean_audio: CheckboxConfig = CheckboxConfig(
-        label="Clean audio",
+        label="Очистка аудио",
         info=(
-            "Whether to clean the audio files in the provided dataset using noise"
-            " reduction algorithms.<br><br><br>"
+            "Применять ли шумоподавление к аудио в датасете.<br><br><br>"
         ),
         value=False,
         exclude_value=True,
     )
     clean_strength: SliderConfig = SliderConfig.clean_strength(visible=False)
     split_method: DropdownConfig = DropdownConfig(
-        label="Audio splitting method",
+        label="Метод нарезки аудио",
         info=(
-            "The method to use for splitting the audio files in the provided dataset."
-            " Use the `Skip` method to skip splitting if the audio files are already"
-            " split. Use the `Simple` method if excessive silence has already been"
-            " removed from the audio files. Use the `Automatic` method for automatic"
-            " silence detection and splitting around it."
+            "Как делить аудио в датасете. `Skip` — пропустить, если файлы уже"
+            " нарезаны. `Simple` — если лишние паузы удалены. `Automatic` —"
+            " автоматически искать тишину и резать вокруг неё."
         ),
         value=AudioSplitMethod.AUTOMATIC,
         choices=list(AudioSplitMethod),
         exclude_value=True,
     )
     chunk_len: SliderConfig = SliderConfig(
-        label="Chunk length",
-        info="Length of split audio chunks.",
+        label="Длина чанка",
+        info="Длительность нарезанных фрагментов.",
         value=3.0,
         minimum=0.5,
         maximum=5.0,
@@ -665,8 +662,8 @@ class TrainingConfig(BaseTabConfig):
         visible=False,
     )
     overlap_len: SliderConfig = SliderConfig(
-        label="Overlap length",
-        info="Length of overlap between split audio chunks.",
+        label="Длина перекрытия",
+        info="Размер перекрытия между соседними фрагментами.",
         value=0.3,
         minimum=0.0,
         maximum=0.4,
@@ -676,31 +673,30 @@ class TrainingConfig(BaseTabConfig):
     preprocess_cores: SliderConfig = SliderConfig.cpu_cores()
 
     extract_model: DropdownConfig = DropdownConfig(
-        label="Model name",
+        label="Имя модели",
         info=(
-            "Name of the model with an associated preprocessed dataset to extract"
-            " training features from. When a new dataset is preprocessed, its"
-            " associated model is selected by default."
+            "Название модели с подготовленным датасетом, из которого нужно"
+            " извлечь фичи. После новой подготовки датасета его модель выбирается"
+            " автоматически."
         ),
         value=None,
         render=False,
         exclude_value=True,
     )
     f0_method: DropdownConfig = DropdownConfig(
-        label="F0 method",
-        info="The method to use for extracting pitch features.",
+        label="Метод F0",
+        info="Метод извлечения высоты тона (pitch).",
         value=F0Method.RMVPE,
         choices=list(F0Method),
         exclude_value=True,
     )
 
     include_mutes: SliderConfig = SliderConfig(
-        label="Include mutes",
+        label="Количество тишины",
         info=(
-            "The number of mute audio files to include in the generated training file"
-            " list. Adding silent files enables the training model to handle pure"
-            " silence in inferred audio files. If the preprocessed audio dataset"
-            " already contains segments of pure silence, set this to 0."
+            "Сколько файлов с тишиной добавить в список для обучения. Это помогает"
+            " модели справляться с паузами. Если в датасете уже есть тихие"
+            " сегменты, поставьте 0."
         ),
         value=2,
         minimum=0,
@@ -712,20 +708,20 @@ class TrainingConfig(BaseTabConfig):
     extraction_gpus: DropdownConfig = DropdownConfig.gpu()
 
     train_model: DropdownConfig = DropdownConfig(
-        label="Model name",
+        label="Имя модели",
         info=(
-            "Name of the model to train. When training features are extracted for a new"
-            " model, its name is selected by default."
+            "Название модели для обучения. После извлечения фич для новой модели"
+            " её имя выбирается автоматически."
         ),
         value=None,
         render=False,
         exclude_value=True,
     )
     num_epochs: SliderConfig = SliderConfig(
-        label="Number of epochs",
+        label="Количество эпох",
         info=(
-            "The number of epochs to train the voice model. A higher number can improve"
-            " voice model performance but may lead to overtraining."
+            "Сколько эпох обучать голосовую модель. Больше эпох — лучше качество,"
+            " но выше риск переобучения."
         ),
         value=500,
         minimum=1,
@@ -735,8 +731,8 @@ class TrainingConfig(BaseTabConfig):
     batch_size: SliderConfig = SliderConfig(
         label="Batch size",
         info=(
-            "The number of samples in each training batch. It is advisable to align"
-            " this value with the available VRAM of your GPU."
+            "Количество сэмплов в каждом батче. Подберите значение под доступную"
+            " видеопамять."
         ),
         value=8,
         minimum=1,
@@ -744,20 +740,19 @@ class TrainingConfig(BaseTabConfig):
         step=1,
     )
     detect_overtraining: CheckboxConfig = CheckboxConfig(
-        label="Detect overtraining",
+        label="Отслеживать переобучение",
         info=(
-            "Whether to detect overtraining to prevent the voice model from learning"
-            " the training data too well and losing the ability to generalize to new"
-            " data."
+            "Включить контроль переобучения, чтобы модель не запоминала датасет"
+            " дословно и не теряла обобщение."
         ),
         value=False,
         exclude_value=True,
     )
     overtraining_threshold: SliderConfig = SliderConfig(
-        label="Overtraining threshold",
+        label="Порог переобучения",
         info=(
-            "The maximum number of epochs to continue training without any observed"
-            " improvement in voice model performance."
+            "Максимум эпох без улучшения качества, после которых тренировка"
+            " прекращается."
         ),
         value=50,
         minimum=1,
@@ -766,50 +761,47 @@ class TrainingConfig(BaseTabConfig):
         step=1,
     )
     vocoder: DropdownConfig = DropdownConfig(
-        label="Vocoder",
+        label="Вокодер",
         info=(
-            "The vocoder to use for audio synthesis during training. HiFi-GAN provides"
-            " basic audio fidelity, while RefineGAN provides the highest audio"
-            " fidelity."
+            "Вокодер для синтеза аудио во время обучения. HiFi-GAN даёт базовое"
+            " качество, RefineGAN — максимально высокое."
         ),
         value=Vocoder.HIFI_GAN,
         choices=list(Vocoder),
     )
     index_algorithm: DropdownConfig = DropdownConfig(
-        label="Index algorithm",
+        label="Алгоритм индексации",
         info=(
-            "The method to use for generating an index file for the trained voice"
-            " model. `KMeans` is particularly useful for large datasets."
+            "Метод построения индекс-файла для обученной голосовой модели."
+            " `KMeans` особенно полезен на больших датасетах."
         ),
         value=IndexAlgorithm.AUTO,
         choices=list(IndexAlgorithm),
     )
     pretrained_type: DropdownConfig = DropdownConfig(
-        label="Pretrained model type",
+        label="Тип предобученной модели",
         info=(
-            "The type of pretrained model to finetune the voice model on. `None` will"
-            " train the voice model from scratch, while `Default` will use a pretrained"
-            " model tailored to the specific voice model architecture. `Custom` will"
-            " use a custom pretrained that you provide."
+            "Какой предобученный вес использовать для дообучения. `None` — с нуля,"
+            " `Default` — стандартный под архитектуру, `Custom` — ваш собственный"
+            " вес."
         ),
         value=PretrainedType.DEFAULT,
         choices=list(PretrainedType),
         exclude_value=True,
     )
     custom_pretrained_model: DropdownConfig = DropdownConfig(
-        label="Custom pretrained model",
-        info="Select a custom pretrained model to finetune from the dropdown.",
+        label="Пользовательская предобученная модель",
+        info="Выберите пользовательский предобученный вес для дообучения.",
         value=None,
         visible=False,
         render=False,
         exclude_value=True,
     )
     save_interval: SliderConfig = SliderConfig(
-        label="Save interval",
+        label="Интервал сохранения",
         info=(
-            "The epoch interval at which to to save voice model weights and"
-            " checkpoints. The best model weights are always saved regardless of this"
-            " setting."
+            "Через сколько эпох сохранять веса и контрольные точки. Лучшие веса"
+            " сохраняются всегда, независимо от этого параметра."
         ),
         value=10,
         minimum=1,
@@ -817,42 +809,41 @@ class TrainingConfig(BaseTabConfig):
         step=1,
     )
     save_all_checkpoints: CheckboxConfig = CheckboxConfig(
-        label="Save all checkpoints",
+        label="Сохранять все чекпоинты",
         info=(
-            "Whether to save a unique checkpoint at each save interval. If not enabled,"
-            " only the latest checkpoint will be saved at each interval."
+            "Сохранять отдельный чекпоинт на каждом шаге. Если выкл., хранится"
+            " только последний."
         ),
         value=False,
     )
     save_all_weights: CheckboxConfig = CheckboxConfig(
-        label="Save all weights",
+        label="Сохранять все веса",
         info=(
-            "Whether to save unique voice model weights at each save interval. If not"
-            " enabled, only the best voice model weights will be saved."
+            "Сохранять отдельные веса модели на каждом интервале. Если выкл.,"
+            " остаются только лучшие веса."
         ),
         value=False,
     )
     clear_saved_data: CheckboxConfig = CheckboxConfig(
-        label="Clear saved data",
+        label="Очистить сохранённые данные",
         info=(
-            "Whether to delete any existing training data associated with the voice"
-            " model before training commences. Enable this setting only if you are"
-            " training a new voice model from scratch or restarting training."
+            "Удалять ли старые данные обучения, связанные с моделью, перед стартом."
+            " Включайте, если начинаете с нуля или перезапускаете обучение."
         ),
         value=False,
     )
     upload_model: CheckboxConfig = CheckboxConfig(
-        label="Upload voice model",
+        label="Загрузить голосовую модель",
         info=(
-            "Whether to automatically upload the trained voice model so that it can be"
-            " used for generation tasks within the Ultimate RVC app."
+            "Автоматически выгрузить обученную модель, чтобы использовать её в"
+            " Ultimate RVC AISingers RUS."
         ),
         value=False,
         exclude_value=True,
     )
     upload_name: TextboxConfig = TextboxConfig(
-        label="Upload name",
-        info="The name to give the uploaded voice model.",
+        label="Имя при загрузке",
+        info="Название, под которым будет загружена голосовая модель.",
         value=None,
         visible=False,
         exclude_value=True,
@@ -860,29 +851,28 @@ class TrainingConfig(BaseTabConfig):
     training_acceleration: DropdownConfig = DropdownConfig.hardware_acceleration()
     training_gpus: DropdownConfig = DropdownConfig.gpu()
     precision: DropdownConfig = DropdownConfig(
-        label="Precision",
+        label="Точность вычислений",
         info=(
-            "The precision type to use when training the voice model. FP16 and BF16 can"
-            " reduce VRAM usage and speed up training on supported hardware."
+            "Тип точности при обучении. FP16 и BF16 снижают потребление VRAM и"
+            " ускоряют обучение на поддерживаемом железе."
         ),
         value=PrecisionType.FP32,
         choices=list(PrecisionType),
     )
     preload_dataset: CheckboxConfig = CheckboxConfig(
-        label="Preload dataset",
+        label="Предзагружать датасет",
         info=(
-            "Whether to preload all training data into GPU memory. This can improve"
-            " training speed but requires a lot of VRAM.<br><br>"
+            "Загружать ли все данные обучения в видеопамять. Ускоряет обучение, но"
+            " требует много VRAM.<br><br>"
         ),
         value=False,
     )
     reduce_memory_usage: CheckboxConfig = CheckboxConfig(
-        label="Reduce memory usage",
+        label="Экономить память",
         info=(
-            "Whether to reduce VRAM usage at the cost of slower training speed by"
-            " enabling activation checkpointing. This is useful for GPUs with limited"
-            " memory (e.g., <6GB VRAM) or when training with a batch size larger than"
-            " what your GPU can normally accommodate."
+            "Включить активационный чекпоинтинг для экономии VRAM ценой скорости."
+            " Полезно для карт с ограниченной памятью (<6 ГБ) или при большом"
+            " batch size."
         ),
         value=False,
     )

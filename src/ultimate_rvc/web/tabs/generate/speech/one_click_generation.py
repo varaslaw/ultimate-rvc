@@ -45,19 +45,19 @@ def render(total_config: TotalConfig) -> None:
 
     """
     tab_config = total_config.speech.one_click
-    with gr.Tab("One-click"):
+    with gr.Tab("В один клик"):
         _render_input(tab_config)
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             _render_tts_options(tab_config)
             _render_conversion_options(tab_config)
             _render_output_options(tab_config)
             _render_intermediate_audio(tab_config)
 
         with gr.Row(equal_height=True):
-            reset_btn = gr.Button(value="Reeset settings", scale=2)
-            generate_btn = gr.Button(value="Generate", scale=2, variant="primary")
+            reset_btn = gr.Button(value="Сбросить настройки", scale=2)
+            generate_btn = gr.Button(value="Сгенерировать", scale=2, variant="primary")
         mixed_speech = gr.Audio(
-            label="Mixed speech",
+            label="Сведённая речь",
             scale=3,
             waveform_options=gr.WaveformOptions(show_recording_waveform=False),
         )
@@ -65,7 +65,7 @@ def render(total_config: TotalConfig) -> None:
             partial(
                 exception_harness(
                     run_pipeline,
-                    info_msg="Speech generated successfully!",
+                    info_msg="Речь успешно создана!",
                 ),
                 progress_bar=PROGRESS_BAR,
             ),
@@ -169,7 +169,7 @@ def _render_input(tab_config: OneClickSpeechGenerationConfig) -> None:
         with gr.Column():
             tab_config.source.instantiate()
             local_file = gr.File(
-                label="Source",
+                label="Источник",
                 file_types=[".txt"],
                 file_count="single",
                 type="filepath",
@@ -200,18 +200,18 @@ def _render_tts_options(tab_config: OneClickSpeechGenerationConfig) -> None:
 
 
 def _render_conversion_options(tab_config: OneClickSpeechGenerationConfig) -> None:
-    with gr.Accordion("Speech conversion", open=False):
+    with gr.Accordion("Конверсия речи", open=False):
         with gr.Row():
             tab_config.n_octaves.instantiate()
             tab_config.n_semitones.instantiate()
-        with gr.Accordion("Voice synthesis", open=False):
+        with gr.Accordion("Синтез голоса", open=False):
             with gr.Row():
                 tab_config.f0_method.instantiate()
                 tab_config.index_rate.instantiate()
             with gr.Row():
                 tab_config.rms_mix_rate.instantiate()
                 tab_config.protect_rate.instantiate()
-        with gr.Accordion("Speech enrichment", open=False):
+        with gr.Accordion("Обогащение речи", open=False):
             with gr.Row(), gr.Column():
                 tab_config.split_voice.instantiate()
             with gr.Row():
@@ -242,7 +242,7 @@ def _render_conversion_options(tab_config: OneClickSpeechGenerationConfig) -> No
             outputs=tab_config.clean_strength.instance,
             show_progress="hidden",
         )
-        with gr.Accordion("Speaker embedding", open=False), gr.Row():
+        with gr.Accordion("Спикер-эмбеддинг", open=False), gr.Row():
             with gr.Column():
                 tab_config.embedder_model.instantiate()
                 tab_config.custom_embedder_model.instance.render()
@@ -256,7 +256,7 @@ def _render_conversion_options(tab_config: OneClickSpeechGenerationConfig) -> No
 
 
 def _render_output_options(tab_config: OneClickSpeechGenerationConfig) -> None:
-    with gr.Accordion("Audio output", open=False):
+    with gr.Accordion("Вывод аудио", open=False):
         with gr.Row():
             tab_config.output_gain.instantiate()
             tab_config.output_sr.instantiate()
@@ -276,17 +276,17 @@ def _render_output_options(tab_config: OneClickSpeechGenerationConfig) -> None:
 
 def _render_intermediate_audio(tab_config: OneClickSpeechGenerationConfig) -> None:
     with gr.Accordion(
-        "Intermediate audio tracks",
+        "Промежуточные дорожки",
         open=False,
         visible=False,
     ) as intermediate_audio_accordion:
         with gr.Accordion(
-            "Step 1: text-to-speech conversion",
+            "Шаг 1: текст → речь",
             open=False,
         ) as tts_accordion:
             tab_config.intermediate_audio.speech.instantiate()
         with gr.Accordion(
-            "Step 2: speech conversion",
+            "Шаг 2: конверсия речи",
             open=False,
         ) as speech_conversion_accordion:
             tab_config.intermediate_audio.converted_speech.instantiate()

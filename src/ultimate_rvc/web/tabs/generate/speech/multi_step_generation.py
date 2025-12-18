@@ -53,7 +53,7 @@ def render(total_config: TotalConfig) -> None:
     tab_config = total_config.speech.multi_step
     for c in tab_config.input_audio.all:
         c.instantiate()
-    with gr.Tab("Multi-step"):
+    with gr.Tab("По шагам"):
         _render_step_1(total_config)
         _render_step_2(total_config)
         _render_step_3(total_config)
@@ -61,14 +61,14 @@ def render(total_config: TotalConfig) -> None:
 
 def _render_step_1(total_config: TotalConfig) -> None:
     tab_config = total_config.speech.multi_step
-    with gr.Accordion("Step 1: Text-to-speech conversion", open=True):
+    with gr.Accordion("Шаг 1: текст → речь", open=True):
         with gr.Row():
             with gr.Column():
                 tab_config.source_type.instantiate()
             with gr.Column():
                 tab_config.source.instantiate()
                 local_file = gr.File(
-                    label="Source",
+                    label="Источник",
                     file_types=[".txt"],
                     file_count="single",
                     type="filepath",
@@ -87,22 +87,22 @@ def _render_step_1(total_config: TotalConfig) -> None:
                 show_progress="hidden",
             )
         tab_config.edge_tts_voice.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             with gr.Row():
                 tab_config.tts_pitch_shift.instantiate()
                 tab_config.tts_speed_change.instantiate()
                 tab_config.tts_volume_change.instantiate()
             speech_transfer = _render_speech_transfer(
                 [SpeechTransferOption.STEP_2_SPEECH],
-                "Speech",
+                "Речь",
             )
         with gr.Row():
-            tts_reset_btn = gr.Button("Reset settings")
-            tts_btn = gr.Button("Convert text", variant="primary")
-        tts_transfer_btn = gr.Button("Transfer speech")
+            tts_reset_btn = gr.Button("Сбросить настройки")
+            tts_btn = gr.Button("Преобразовать текст", variant="primary")
+        tts_transfer_btn = gr.Button("Передать речь")
 
         speech_track_output = gr.Audio(
-            label="Generated speech",
+            label="Сгенерированная речь",
             type="filepath",
             interactive=False,
             waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -123,7 +123,7 @@ def _render_step_1(total_config: TotalConfig) -> None:
             show_progress="hidden",
         )
         tts_btn.click(
-            exception_harness(run_edge_tts, info_msg="Text succesfully converted!"),
+            exception_harness(run_edge_tts, info_msg="Текст успешно озвучен!"),
             inputs=[
                 tab_config.source.instance,
                 tab_config.edge_tts_voice.instance,
@@ -148,21 +148,21 @@ def _render_step_1(total_config: TotalConfig) -> None:
 def _render_step_2(total_config: TotalConfig) -> None:
     tab_config = total_config.speech.multi_step
 
-    with gr.Accordion("Step 2: speech conversion", open=False):
+    with gr.Accordion("Шаг 2: конверсия речи", open=False):
         tab_config.input_audio.speech.instance.render()
         tab_config.voice_model.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             with gr.Row():
                 tab_config.n_octaves.instantiate()
                 tab_config.n_semitones.instantiate()
-            with gr.Accordion("Voice synthesis settings", open=False):
+            with gr.Accordion("Настройки синтеза", open=False):
                 with gr.Row():
                     tab_config.f0_method.instantiate()
                     tab_config.index_rate.instantiate()
                 with gr.Row():
                     tab_config.rms_mix_rate.instantiate()
                     tab_config.protect_rate.instantiate()
-            with gr.Accordion("Speech enrichment settings", open=False):
+            with gr.Accordion("Обогащение речи", open=False):
                 with gr.Row(), gr.Column():
                     tab_config.split_voice.instantiate()
                 with gr.Row():
@@ -206,15 +206,15 @@ def _render_step_2(total_config: TotalConfig) -> None:
             )
             converted_speech_transfer = _render_speech_transfer(
                 [SpeechTransferOption.STEP_3_SPEECH],
-                "Converted speech",
+                "Сконвертированная речь",
             )
         with gr.Row():
-            convert_speech_reset_btn = gr.Button("Reset settings")
-            convert_speech_btn = gr.Button("Convert speech", variant="primary")
-        converted_speech_transfer_btn = gr.Button("Transfer converted speech")
+            convert_speech_reset_btn = gr.Button("Сбросить настройки")
+            convert_speech_btn = gr.Button("Конвертировать речь", variant="primary")
+        converted_speech_transfer_btn = gr.Button("Передать сконвертированную речь")
 
         converted_speech_track_output = gr.Audio(
-            label="Converted speech",
+            label="Сконвертированная речь",
             type="filepath",
             interactive=False,
             waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -261,7 +261,7 @@ def _render_step_2(total_config: TotalConfig) -> None:
 
         convert_speech_btn.click(
             partial(
-                exception_harness(convert, info_msg="Speech succesfully converted!"),
+                exception_harness(convert, info_msg="Речь успешно сконвертирована!"),
                 content_type=RVCContentType.SPEECH,
                 make_directory=True,
             ),
@@ -304,9 +304,9 @@ def _render_step_2(total_config: TotalConfig) -> None:
 
 def _render_step_3(total_config: TotalConfig) -> None:
     tab_config = total_config.speech.multi_step
-    with gr.Accordion("Step 3: speech mixing", open=False):
+    with gr.Accordion("Шаг 3: сведение речи", open=False):
         tab_config.input_audio.converted_speech.instance.render()
-        with gr.Accordion("Options", open=False):
+        with gr.Accordion("Настройки", open=False):
             with gr.Row():
                 tab_config.output_gain.instantiate()
                 tab_config.output_sr.instantiate()
@@ -324,13 +324,13 @@ def _render_step_3(total_config: TotalConfig) -> None:
                     ],
                 )
                 tab_config.output_format.instantiate()
-            mixed_speech_transfer = _render_speech_transfer([], "Mixed speech")
+            mixed_speech_transfer = _render_speech_transfer([], "Сведённая речь")
         with gr.Row():
-            mix_speech_btn = gr.Button("Mix speech", variant="primary")
-            mix_speech_transfer_btn = gr.Button("Transfer mixed speech")
-        mix_speech_reset_btn = gr.Button("Reset settings")
+            mix_speech_btn = gr.Button("Свести речь", variant="primary")
+            mix_speech_transfer_btn = gr.Button("Передать сведённую речь")
+        mix_speech_reset_btn = gr.Button("Сбросить настройки")
         mixed_speech_track_output = gr.Audio(
-            label="Mixed speech",
+            label="Сведённая речь",
             type="filepath",
             interactive=False,
             waveform_options=gr.WaveformOptions(show_recording_waveform=False),
@@ -352,7 +352,7 @@ def _render_step_3(total_config: TotalConfig) -> None:
             show_progress="hidden",
         )
         mix_speech_btn.click(
-            exception_harness(mix_speech, info_msg="Speech successfully mixed!"),
+            exception_harness(mix_speech, info_msg="Речь успешно сведена!"),
             inputs=[
                 tab_config.input_audio.converted_speech.instance,
                 tab_config.output_gain.instance,
