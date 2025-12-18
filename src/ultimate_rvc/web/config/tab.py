@@ -645,7 +645,7 @@ class TrainingConfig(BaseTabConfig):
         label="Метод нарезки аудио",
         info=(
             "Как делить аудио в датасете. `Skip` — пропустить, если файлы уже"
-            " нарезаны. `Simple` — если лишние паузы удалены. `Automatic` —
+            " нарезаны. `Simple` — если лишние паузы удалены. `Automatic` —"
             " автоматически искать тишину и резать вокруг неё."
         ),
         value=AudioSplitMethod.AUTOMATIC,
